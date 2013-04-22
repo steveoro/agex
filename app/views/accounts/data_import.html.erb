@@ -1,0 +1,76 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}" %>: (1/3) <%="#{I18n.t(:select_create_session)}"%></h1>
+
+<% if @existing_import_sessions.size > 0 %>
+
+<script type="text/javascript" >
+	function showLog( containerId ) {
+		var cntLog = Ext.get( containerId ); 
+		Ext.MessageBox.alert( '<%="#{I18n.t(:result_log)}"%>', cntLog.dom.innerHTML );
+		return false;
+	}
+</script>
+
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<h2><%= I18n.t(:existing_data_import_sessions) %>:</h2>
+<ul>
+	<% @existing_import_sessions.each do |s| %>
+		<li>
+			<b>-&nbsp;<%= h( File.basename( s.file_name ) ) %></b>&nbsp;
+			<i>(<%=I18n.t(:last_phase)%>: <%= s.phase %>,&nbsp;
+			<%=I18n.t(:data_rows)%>: <%= s.total_data_rows %>,&nbsp;
+			<%=I18n.t(:data_format)%>: <%= s.file_format %>)</i>&nbsp;
+			<% if (s.phase.to_i > 0) %>
+				<%= link_to(
+						I18n.t(:continue_on_phase2),
+						data_import_wizard_accounts_path( :id => s.id ),
+						:method => :post
+			 		) %>
+				&nbsp;
+<span id='<%="spanFullLog#{s.id}"%>' hidden="true" >
+<pre>
+	<%="#{s.phase_1_log}"%>
+	--- *** ---
+	<%="#{s.phase_2_log}"%>
+</pre>
+</span>
+	<%= link_to( I18n.t(:result_log), "javascript: showLog('spanFullLog#{s.id}')" ) %>
+		&nbsp;
+	<% end %>
+	<%= link_to(
+			I18n.t(:del, :scope => [:netzke,:basepack,:grid_panel,:actions]),
+			kill_data_import_session_account_path( :id => s.id ),
+			:method => :post,
+			:confirm => I18n.t(:are_you_sure, :scope => [:netzke,:basepack,:grid_panel])
+ 		) %>
+	</li>
+	<% end %>
+</ul>
+</div>
+<% end %>
+
+
+<% @uploaded_files = Dir.glob( File.join(Dir.pwd, 'public/uploads/*.*') ) %>
+<% if @uploaded_files.size > 0 %>
+	<div style="padding-top: 1em; padding-bottom: 1em;">
+	<h2><%= I18n.t(:uploaded_files_still_present) %>:</h2>
+	<ul>
+		<% @uploaded_files.each do |fn| %>
+			<li>
+				-&nbsp; <%= h(fn) %> &nbsp;
+			</li>
+		<% end %>
+	</ul>
+	</div>
+<% end %>
+
+
+<div align="center" style="padding-top: 5em; padding-bottom: 20em;">
+	<%= form_tag( 'data_import_wizard', :multipart => true ) do -%>
+		<p><label><%=I18n.t(:select_file)%></label> : 
+		<%= file_field_tag( :datafile ) %> &nbsp;
+	  	<%= submit_tag( I18n.t(:upload) ) %>
+	<% end %>
+</div>

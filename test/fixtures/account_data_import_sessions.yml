@@ -1,0 +1,25 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  id: 
+  file_name: MyString
+  source_data: MyText
+  phase: 1
+  user_id: 1
+  total_data_rows: 1
+  file_format: MyString
+  phase_1_log: MyText
+  phase_2_log: MyText
+  phase_3_log: MyText
+
+two:
+  id: 
+  file_name: MyString
+  source_data: MyText
+  phase: 1
+  user_id: 1
+  total_data_rows: 1
+  file_format: MyString
+  phase_1_log: MyText
+  phase_2_log: MyText
+  phase_3_log: MyText

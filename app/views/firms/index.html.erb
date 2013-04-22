@@ -1,0 +1,14 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= t(:firms_list) %></h1>
+
+<%= netzke :firm_manage_panel, {
+	:class_name => "FirmManagePanel",
+	:width => "98%",
+	:height => @max_view_height,
+	:border => true,
+	:view_config => {
+		:force_fit => true # force the columns to occupy all the available width
+	}
+} %>

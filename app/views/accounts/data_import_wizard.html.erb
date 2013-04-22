@@ -1,0 +1,32 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}" %>: (2/3) <%="#{I18n.t(:review_edit_data)}"%></h1>
+
+
+<% if @account_data_import_session_id %>
+	<%= netzke :account_data_import_panel, {
+		:class_name => "AccountDataImportRowsGrid",
+		:width => "98%",
+		:height => @max_view_height,
+		:border => true,
+        # [20130422] Do NOT use a lambda with a sort clause here on the scope, since it will prevent ordering
+        # by column-click to work.
+        # (To actually use a lambda yielding a Relation parameter, the scope definition should be moved
+        # inside the component config definition, since using lambda here will yield a Proc parameter instead.) 
+        :scope => [ "account_data_import_session_id = ?", @account_data_import_session_id ],
+ 		:view_config => {
+			:force_fit => true # force the columns to occupy all the available width
+		}
+	} %>
+<% else %>
+	<div align="center" style="padding-top: 2em; padding-bottom: 20em;">
+		<p><i><%= t(:warning_no_import_data_session_found) %></i></p>
+	</div>
+<% end %>
+
+<div id="divImportDataContainer" hidden="true">
+	<%= form_tag( data_import_commit_accounts_path(), :id => 'frmPostImportData' ) do -%>
+		<%= hidden_field_tag( :data ) %>
+	<% end %>
+</div>

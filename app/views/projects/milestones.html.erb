@@ -1,0 +1,46 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:project_milestones_for)} \'#{@project_name}\'" %></h1>
+
+<script type="text/javascript" >
+	Ext.onReady(
+		function() {
+			Ext.create( 'Ext.Container', {
+				renderTo: Ext.get('agex_top_actions'),
+				layout : {
+					type: 'hbox',
+					maxHeight: 30
+				},
+				items : [
+					<%= create_extjs_button_config( :back_to_projects_list,	nil, 		projects_path(), 			'application_view_list.png' ) %>,
+					<%= create_extjs_button_config( :manage_project, 		:back_to_manage_project, 	manage_project_path(), 		'layout_edit.png' ) %>,
+					<%= create_extjs_button_config( :refresh, 				nil, 		request.fullpath(), 		'arrow_refresh.png' ) %>,
+					<%= create_extjs_button_config( :project_activity_graph,nil, 		activity_project_path(),	'chart_bar.png' ) %>
+				]
+			});
+		}		
+	);
+</script>
+
+<div id='agex_top_actions'></div>
+
+<%= netzke :project_milestones_panel, {
+    :class_name => "ProjectMilestonesGrid",
+
+    :scope => [ "project_milestones.project_id = ?", @project_id ],
+	:default_currency_id => @default_currency_id,
+	:default_human_resource_id => @default_human_resource_id,
+	:current_team_id => @current_team_id,
+	:project_id => @project_id,
+	:strong_default_attrs => {
+		:project_id => @project_id
+	},
+
+    :min_width => 200,
+	:width => "98%",
+    :height => @max_view_height,
+	:view_config => {
+		:force_fit => true
+	}
+} %>

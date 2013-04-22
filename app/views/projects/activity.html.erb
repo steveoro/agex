@@ -1,0 +1,306 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:project_activity_for)} \'#{@project_name}\'" %></h1>
+
+<script type="text/javascript" >
+	Ext.require([
+	    'Ext.data.*',
+	    'Ext.data.reader.*',
+	    'Ext.chart.*',
+	    'Ext.fx.target.Sprite', 'Ext.layout.container.Fit'
+	]);
+
+	Ext.onReady(
+		function() {
+			Ext.create( 'Ext.Container', {
+				renderTo: Ext.get('agex_top_actions'),
+				layout : {
+					type: 'hbox',
+					maxHeight: 30
+				},
+				items : [
+					<%= create_extjs_button_config( :back_to_projects_list,	nil, 		projects_path(), 			'application_view_list.png' ) %>,
+					<%= create_extjs_button_config( :manage_project, 		:back_to_manage_project, 	manage_project_path(), 		'layout_edit.png' ) %>,
+					<%= create_extjs_button_config( :refresh, 				nil, 		request.fullpath(), 		'arrow_refresh.png' ) %>,
+					<%= create_extjs_button_config( :project_milestones, 	nil,		milestones_project_path(),	'bricks.png' ) %>
+				]
+			});
+			// ---------------------------------------------------------------- END AgeX Actions
+
+													// Retrieve the inline data:
+			var dataByDate 		= Ext.JSON.decode("<%= raw( @project_date_rows ) %>");
+			var dataByResource 	= Ext.JSON.decode("<%= raw( @project_resource_rows ) %>");
+			const resourceName 		= "<%= @resource_name %>";
+			const dateEntryName 	= "<%= @date_entry_name %>";
+			const stdHoursName  	= "<%= @std_hours_name %>";
+			const extHoursName  	= "<%= @ext_hours_name %>";
+		    const commonPanelWidth 	= 800;
+		    const commonPanelHeight	= 250;
+													// Define the Models:
+		    Ext.define('ProjectDataByDate', {
+		        extend: 'Ext.data.Model',
+		        fields: [
+		            { name: dateEntryName,	type: 'string' },
+		         	{ name: stdHoursName, 	type: 'integer' },
+		         	{ name: extHoursName, 	type: 'integer' }
+		        ]
+		    });
+		    Ext.define('ProjectDataByResource', {
+		        extend: 'Ext.data.Model',
+		        fields: [
+		            { name: resourceName,	type: 'string' },
+		         	{ name: stdHoursName, 	type: 'integer' },
+		         	{ name: extHoursName, 	type: 'integer' },
+		         	{
+		         		name: 'tot',
+		         		convert: function(value, record) {
+		         			return record.get(stdHoursName) + record.get(extHoursName);
+		         		}
+		         	}
+		        ]
+		    });
+		                              				// Create the Data Stores:
+			var storeDateRows = Ext.create( 'Ext.data.Store', {
+			        storeId: 'storeDateRows',
+			        model: 'ProjectDataByDate',
+			        data: dataByDate
+		    	}
+		   	);
+			var storeResourceRows = Ext.create( 'Ext.data.Store', {
+			        storeId: 'storeResourceRows',
+			        model: 'ProjectDataByResource',
+			        data: dataByResource
+		    	}
+		   	);
+													// Customize the Theme:
+		    Ext.chart.theme.White = Ext.extend(Ext.chart.theme.Base, {
+		        constructor: function() {
+		           Ext.chart.theme.White.superclass.constructor.call(this, {
+		               axis: {
+		                   stroke: 'rgb(8,69,148)',
+		                   'stroke-width': 1
+		               },
+		               axisLabel: {
+		                   fill: 'rgb(8,69,148)',
+		                   font: '12px Arial',
+		                   'font-family': '"Arial',
+		                   spacing: 2,
+		                   padding: 2,
+		                   renderer: function(v) { return v; }
+		               },
+		               axisTitle: {
+		                  font: 'bold 18px Arial'
+		               }
+		           });
+		        }
+		    });
+		    // ----------------------------------------------------------------
+
+		                              // Activity chart:
+		    var panelActivityChart = Ext.create( 'widget.panel', {
+		          width: commonPanelWidth,
+		          height: commonPanelHeight,
+		          renderTo: 'div_activity_chart',
+		          layout: 'fit',
+		          items: {
+		            id: 'chartActivity',
+		            xtype: 'chart',
+		            style: 'background:#fff',
+		            animate: false,
+		            store: storeDateRows,
+					legend: {
+						position: 'bottom'
+					},
+		            axes: [
+		              {
+		                type: 'Numeric',
+		                position: 'left',
+		                fields: [ stdHoursName, extHoursName ],
+		                title: '(h)',
+		                grid: {
+		                    odd: {
+		                        opacity: 1,
+		                        fill: '#ddd',
+		                        stroke: '#bbb',
+		                        'stroke-width': 1
+		                    }
+		                },
+		                minimum: 0,
+		                adjustMinimumByMajorUnit: 0,
+		                label: {
+		                    renderer: Ext.util.Format.numberRenderer('0,0'),
+		                    font: '10px Arial'
+		                }
+		              },
+		              {
+		                type: 'Category',
+		                position: 'bottom',
+		                fields: [ dateEntryName ],
+		                label: {
+		                    font: '10px Arial',
+		                    rotate: { degrees: 315 }
+		                }
+		              }
+		            ],
+		            series: [
+		                {
+			                type: 'area',
+			                highlight: false,
+			                axis: 'left',
+			                xField: dateEntryName,
+			                yField: [ stdHoursName, extHoursName ],
+			                tips: {
+			                    trackMouse: true,
+			                    width: 135,
+			                    height: 40,
+			                    renderer: function(storeItem, item) {
+			                        this.setTitle(
+			                        	'<i>' + storeItem.get(dateEntryName) + ':</i><br/>' +
+			                        	storeItem.get(stdHoursName) + ' (h std.) + ' +
+			                        	storeItem.get(extHoursName) + ' (h ext.)'
+			                        );
+			                    }
+			                },
+			                style: { opacity: 0.93 }
+		                }
+		            ]
+		          }
+		      }
+			);
+		    // ---------------------------------------------------------------- END of Activity Chart
+
+		                              // Resource/hours Pie chart:
+		    var panelResourcePie = Ext.create( 'widget.panel', {
+		          width: commonPanelWidth,
+		          height: commonPanelHeight,
+		          margin: '10 0 0 0',
+		          renderTo: 'div_resource_pie',
+		          layout: 'fit',
+		          items: {
+		            xtype: 'chart',
+		            id: 'chartResourcePie',
+		            store: storeResourceRows,
+		            animate: true,
+		            shadow: true,
+					legend: {
+						itemSpacing: 5,
+						position: 'left'
+					},
+					insetPadding: 10,
+					theme: 'Base:gradients',
+		            series: [
+		                {
+			                type: 'pie',
+			                field: 'tot',
+			                showInLegend: true,
+			                donut: 20,
+			                tips: {
+			                    trackMouse: true,
+			                    width: 250,
+			                    height: 40,
+			                    renderer: function( storeItem, item ) {
+			                    	// Compute percentage:
+			                    	var total = 0;
+			                    	storeResourceRows.each(
+			                    		function(rec) {
+			                    			total += rec.get( 'tot' );
+			                    		}
+			                    	);
+			                    	var v = storeItem.get('tot');
+			                        this.setTitle(
+			                        	'<i>' + storeItem.get(resourceName) + ':</i> ' +
+			                        	Math.round( v / total * 100 ) + '% => ' +
+			                        	v + ' / ' + total + ' (h)<br/>' +
+			                        	storeItem.get(stdHoursName) + ' (' + stdHoursName + ') + ' +
+			                        	storeItem.get(extHoursName) + ' (' + extHoursName + ')'
+			                        );
+			                    }
+			                },
+			                highlight: {
+			                	segment: { margin: 20 }
+			                },
+			                label: {
+			                	field: resourceName,
+			                	display: 'rotate',
+			                	contrast: true,
+			                	font: '10px Arial'
+			               	}
+		                }
+		            ]
+		          }
+		      }
+			);
+		    // ---------------------------------------------------------------- (END of Resource Pie)
+
+		                              // Resource/hours bar chart:
+		    var panelResourceChart = Ext.create( 'widget.panel', {
+		          width: commonPanelWidth,
+		          height: commonPanelHeight,
+		          renderTo: 'div_resource_chart',
+		          margin: '10 0 0 0',
+		          layout: 'fit',
+		          items: {
+		            xtype: 'chart',
+		            id: 'chartResourceGraph',
+		            style: 'background:#fff',
+		            animate: false,
+		            store: storeResourceRows,
+					legend: {
+						position: 'bottom'
+					},
+		            axes: [
+		              {
+		                type: 'Numeric',
+		                position: 'bottom',
+		                fields: [ stdHoursName, extHoursName ],
+		                title: '(h)',
+						grid: true,
+		                label: {
+		                    renderer: Ext.util.Format.numberRenderer('0,0'),
+		                    font: '10px Arial'
+		                }
+		              },
+		              {
+		                type: 'Category',
+		                position: 'left',
+		                fields: [ resourceName ],
+		                title: resourceName
+		              }
+		            ],
+		            series: [
+		                {
+			                type: 'bar',
+			                axis: 'bottom',
+			                gutter: 40,
+			                xField: resourceName,
+			                yField: [ stdHoursName, extHoursName ],
+			                stacked: true,
+			                tips: {
+			                    trackMouse: true,
+			                    width: 135,
+			                    height: 40,
+			                    renderer: function(storeItem, item) {
+			                        this.setTitle(
+			                        	'<i>' + storeItem.get(resourceName) + ':</i><br/>' +
+			                        	storeItem.get(stdHoursName) + ' (h std.) + ' +
+			                        	storeItem.get(extHoursName) + ' (h ext.)'
+			                        );
+			                    }
+			                }
+		                }
+		            ]
+		      	  }
+		      }
+			);
+          	// ---------------------------------------------------------------- (END of Resource Chart)		          
+		}											// onReady: END		
+	);
+</script>
+
+<div id='agex_top_actions'></div>
+
+<div id='div_activity_chart'></div>
+<div id='div_resource_pie'></div>
+<div id='div_resource_chart'></div>
+

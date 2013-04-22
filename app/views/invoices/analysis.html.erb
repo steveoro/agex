@@ -1,0 +1,23 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:invoice_analysis_title, :scope =>[:agex_action])}" %></h1>
+
+<%= netzke :invoice_analysis_filter_panel, {
+    :class_name => "InvoicesAnalysisFilteringPanel",
+	:filtering_date_start => @filtering_date_start,
+	:filtering_date_end   => @filtering_date_end,
+	:show_current_user_firm => true,
+	:view_config => {
+		:force_fit => true # force the columns to occupy all the available width
+	}
+} %>
+<br/>
+
+<h2><%= "#{I18n.t(:yearly_invoicing_title, :scope =>[:invoice_row])}" %></h2>
+<div id='div_invocing_by_year_chart'></div>
+<br/>
+
+<h2><%= "#{I18n.t(:daily_invoicing_title, :scope =>[:invoice_row])}" %></h2>
+<div id='div_invocing_by_date_chart'></div>
+<br/>

@@ -1,0 +1,40 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{t(:manage_account)} '#{@account_name}'" %></h1>
+
+<script type="text/javascript" >
+	Ext.onReady(
+		function() {
+			Ext.create( 'Ext.Container', {
+				renderTo: Ext.get('agex_top_actions'),
+				layout : {
+					type: 'hbox',
+					maxHeight: 30
+				},
+				items : [
+					<%= create_extjs_button_config( :back_to_accounts_list,	nil, accounts_path(), 			'application_view_list.png' ) %>,
+					<%= create_extjs_button_config( :refresh, 				nil, request.fullpath(), 		'arrow_refresh.png' ) %>
+				]
+			});
+		}		
+	);
+</script>
+
+<div id='agex_top_actions'></div>
+
+<%= netzke :account_manage_panel, {
+    :class_name => "FilteredAccountManagePanel",
+    :title => "#{I18n.t(:details_for)} \'#{@account_name}\'",
+    :record_id => @account_id,
+    :default_currency_id   => @default_currency_id_for_account_rows,
+	:filtering_date_start  => @filtering_date_start,
+	:filtering_date_end    => @filtering_date_end,
+
+    :min_width => 500,
+	:width => "98%",
+    :height => @max_view_height,
+	:view_config => {
+		:force_fit => true
+	}
+} %>

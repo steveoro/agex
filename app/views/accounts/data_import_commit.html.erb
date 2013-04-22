@@ -1,0 +1,10 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}" %>: (3/3) <%="#{I18n.t(:result_log)}"%></h1>
+
+<div align="left" style="padding-left: 5em; padding-top: 2em; padding-bottom: 2em;">
+	<p>
+		<pre><%= @import_log %></pre>
+	</p>
+</div>

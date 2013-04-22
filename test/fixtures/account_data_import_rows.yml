@@ -1,0 +1,35 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  id: 
+  account_data_import_session_id: 1
+  string_1: MyString
+  string_2: MyString
+  string_3: MyString
+  string_4: MyString
+  string_5: MyString
+  text_1: MyText
+  text_2: MyText
+  date_1: 2012-09-28
+  date_2: 2012-09-28
+  int_1: 1
+  int_2: 1
+  float_1: 1.5
+  entry_value: 1.5
+
+two:
+  id: 
+  account_data_import_session_id: 1
+  string_1: MyString
+  string_2: MyString
+  string_3: MyString
+  string_4: MyString
+  string_5: MyString
+  text_1: MyText
+  text_2: MyText
+  date_1: 2012-09-28
+  date_2: 2012-09-28
+  int_1: 1
+  int_2: 1
+  float_1: 1.5
+  entry_value: 1.5

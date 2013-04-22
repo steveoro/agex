@@ -1,0 +1,192 @@
+<!-- Main menu section: -->
+<%= render( :partial => AGEX_APP + '/main_menu') %>
+
+<h1><%= t(:sub_entities_management) %></h1>
+
+<script type="text/javascript" >
+	Ext.onReady(
+		function() {
+			Ext.create( 'Ext.Container', {
+				renderTo: Ext.get('agex_top_actions'),
+				layout : {
+					type: 'hbox',
+					maxHeight: 30
+				},
+				items : [
+					<%= create_extjs_button_config( :refresh, nil, request.fullpath(), 'arrow_refresh.png' ) %>
+				]
+			});
+		}		
+	);
+</script>
+
+<div id='agex_top_actions'></div>
+
+
+<%= netzke :setup_management_panel, {
+	:class_name => "Netzke::Basepack::TabPanel",
+	:width => "98%",
+	:height => @max_view_height,
+	:border => true,
+	:view_config => {
+		:force_fit => true # force the columns to occupy all the available width
+	},
+	:prevent_header => true,
+	:active_tab => 0,
+	:items => [
+  	{
+	    :class_name => "EntityGrid",
+	    :model => 'LeCity',
+		:title => t(:cities),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_city, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_city, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+            { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d', :summary_type => :count },
+            { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :flex => 1 },
+		    { :name => :zip, :label => t(:zip), :width => 60 },
+		    { :name => :area, :label => t(:area), :width => 80 },
+		    { :name => :country, :label => t(:country), :width => 100 },
+		    { :name => :country_code, :label => t(:code), :width => 50 }
+	    ]
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeContactType',
+		:title => t(:contact_types),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_contact_type, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_contact_type, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+            { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d', :summary_type => :count },
+            { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeAccountPaymentType',
+		:title => t(:account_payment_types),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_account_payment_type, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_account_payment_type, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+            { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d', :summary_type => :count },
+            { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "LeAccountRowTypeList",
+		:title => I18n.t(:le_account_row_type, {:scope=>[:activerecord, :models]}),
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeCurrency',
+		:title => t(:currencies),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_currency, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_currency, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+            { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d', :summary_type => :count },
+            { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :width => 100 },
+		    { :name => :description, :label => t(:description), :flex => 1 },
+		    { :name => :display_symbol, :label => t(:display_symbol), :width => 50 },
+		    { :name => :value_format, :label => t(:value_format), :width => 80 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeCurrencyExchange',
+		:title => t(:currency_exchanges),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_currency_exchange, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_currency_exchange, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+            { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d', :summary_type => :count },
+            { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+              :format => 'Y-m-d' },
+		    { :name => :source_currency__display_symbol, :label => t(:source_currency),
+		      :sorting_scope => :sort_exchange_by_source },
+		    { :name => :destination_currency__display_symbol, :label => t(:destination_currency),
+		      :sorting_scope => :sort_exchange_by_destination },
+		    { :name => :date_exchange, :label => t(:date_exchange) },
+		    { :name => :factor, :label => t(:factor) },
+		    { :name => :comment, :label => t(:comment), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeInvoicePaymentType',
+		:title => t(:invoice_payment_types),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_invoice_payment_type, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_invoice_payment_type, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+	        { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d', :summary_type => :count },
+	        { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeInvoiceRowUnit',
+		:title => t(:invoice_row_units),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_invoice_row_unit, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_invoice_row_unit, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+	        { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d', :summary_type => :count },
+	        { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeResourceType',
+		:title => t(:resource_types),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_resource_type, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_resource_type, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+	        { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d', :summary_type => :count },
+	        { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :width => 120 },
+		    { :name => :description, :label => t(:description), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	},
+  	{
+		:class_name => "EntityGrid",
+		:model => 'LeTitle',
+		:title => t(:titles),
+		:add_form_window_config => { :width => 500, :title => "#{I18n.t(:add)} #{I18n.t(:le_title, {:scope=>[:activerecord, :models]})}" },
+		:edit_form_window_config => { :width => 500, :title => "#{I18n.t(:edit)} #{I18n.t(:le_title, {:scope=>[:activerecord, :models]})}" },
+		:columns => [
+	        { :name => :created_on, :label => I18n.t(:created_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d', :summary_type => :count },
+	        { :name => :updated_on, :label => I18n.t(:updated_on), :width => 80, :read_only => true,
+	          :format => 'Y-m-d' },
+		    { :name => :name, :label => t(:name), :width => 120 },
+		    { :name => :description, :label => t(:description), :flex => 1 }
+	    ],
+	    :lazy_loading => true
+	}
+  ]
+} %>
