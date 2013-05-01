@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.04.00.20130501
 #
 # == Params
 #
@@ -295,16 +295,16 @@ class ProjectRowsGrid < Netzke::Basepack::GridPanel
       },
       { :name => :human_resource__get_full_name, :field_label => I18n.t(:human_resource__get_full_name),
         :scope => lambda { |rel|
-          rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] )
+          rel.joins(:team_rows).still_available.where( ['team_id = ?', config[:current_team_id]] )
         },
-        :default_value => super[:default_human_resource_id], :sorting_scope => :sort_project_row_by_resource
+        :default_value => config[:default_human_resource_id], :sorting_scope => :sort_project_row_by_resource
       },
       { :name => :std_hours,      :field_label => I18n.t(:std_hours, {:scope=>[:project_row]}), :width => 50, :summary_type => :sum },
       { :name => :ext_hours,      :field_label => I18n.t(:ext_hours, {:scope=>[:project_row]}), :width => 50, :summary_type => :sum },
       { :name => :km_tot,         :field_label => I18n.t(:km_tot, {:scope=>[:project_row]}), :width => 50, :summary_type => :sum },
       { :name => :extra_expenses, :field_label => I18n.t(:extra_expenses, {:scope=>[:project_row]}), :width => 60, :xtype => 'numbercolumn', :align => 'right', :format => '0.00', :summary_type => :sum },
       { :name => :le_currency__display_symbol, :field_label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
-        :default_value => super[:default_currency_id], :sorting_scope => :sort_project_row_by_currency
+        :default_value => config[:default_currency_id], :sorting_scope => :sort_project_row_by_currency
       },
       { :name => :is_analysis,    :field_label => I18n.t(:is_analysis, {:scope=>[:project_row]}),
         :default_value => false, :unchecked_value => 'false'
@@ -328,7 +328,7 @@ class ProjectRowsGrid < Netzke::Basepack::GridPanel
         :default_value => I18n.t(:dev_debug, :scope=>[:project_row]) },
       { :name => :project_milestone__name,  :field_label => I18n.t(:project_milestone__name),
         :scope => lambda { |rel|
-          rel.not_yet_implemented.where( ['project_id = ?', super[:project_id]] )
+          rel.not_yet_implemented.where( ['project_id = ?', config[:project_id]] )
         },
         :sorting_scope => :sort_project_row_by_milestone
       },
