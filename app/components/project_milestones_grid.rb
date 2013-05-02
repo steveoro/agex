@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.04.01.20130502
 #
 # == Params
 #
@@ -30,54 +30,54 @@ class ProjectMilestonesGrid < EntityGrid
       :prevent_header => true,
       :min_width => 750,
       :columns => [
-          { :name => :created_on, :label => I18n.t(:created_on), :width => 80,   :read_only => true,
-            :format => 'Y-m-d' },
-          { :name => :updated_on, :label => I18n.t(:updated_on), :width => 120,  :read_only => true,
-            :format => 'Y-m-d' },
+        { :name => :created_on, :label => I18n.t(:created_on), :width => 80,   :read_only => true,
+          :format => 'Y-m-d' },
+        { :name => :updated_on, :label => I18n.t(:updated_on), :width => 120,  :read_only => true,
+          :format => 'Y-m-d' },
 
-          { :name => :user__name, :label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
-            :sorting_scope => :sort_project_milestone_by_user
+        { :name => :user__name, :label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
+          :sorting_scope => :sort_project_milestone_by_user
+        },
+        { :name => :human_resource__get_full_name,  :label => I18n.t(:human_resource__get_full_name),
+          :scope => lambda { |rel|
+            rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] )
           },
-          { :name => :human_resource__get_full_name,  :label => I18n.t(:human_resource__get_full_name),
-            :scope => lambda { |rel|
-              rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] )
-            },
-            :default_value => super[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
-          },
-          { :name => :depends_on__name, :label => I18n.t(:depends_on__name), :width => 65,
-            :sorting_scope => :sort_project_milestone_by_dependency
-          },
-          { :name => :esteemed_days, :label => I18n.t(:esteemed_days), :width => 60, :summary_type => :sum },
-          { :name => :date_esteemed, :xtype => :datecolumn, :label => I18n.t(:date_esteemed),:width => 75,
-            :format => 'Y-m-d' },
-          { :name => :projected_for_version, :label => I18n.t(:projected_for_version), :width => 80 },
+          :default_value => super[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
+        },
+        { :name => :depends_on__name, :label => I18n.t(:depends_on__name), :width => 65,
+          :sorting_scope => :sort_project_milestone_by_dependency
+        },
+        { :name => :esteemed_days, :label => I18n.t(:esteemed_days), :width => 60, :summary_type => :sum },
+        { :name => :date_esteemed, :xtype => :datecolumn, :label => I18n.t(:date_esteemed),:width => 75,
+          :format => 'Y-m-d' },
+        { :name => :projected_for_version, :label => I18n.t(:projected_for_version), :width => 80 },
 
-          { :name => :is_public,       :label => I18n.t(:is_public),
-            :default_value => false, :unchecked_value => 'false'
-          },
-          { :name => :is_critical,     :label => I18n.t(:is_critical),
-            :default_value => false, :unchecked_value => 'false'
-          },
-          { :name => :is_urgent,       :label => I18n.t(:is_urgent),
-            :default_value => false, :unchecked_value => 'false'
-          },
-          { :name => :is_structural,   :label => I18n.t(:is_structural),
-            :default_value => false, :unchecked_value => 'false'
-          },
-          { :name => :is_user_request, :label => I18n.t(:is_user_request),
-            :default_value => false, :unchecked_value => 'false'
-          },
+        { :name => :is_public,       :label => I18n.t(:is_public),
+          :default_value => false, :unchecked_value => 'false'
+        },
+        { :name => :is_critical,     :label => I18n.t(:is_critical),
+          :default_value => false, :unchecked_value => 'false'
+        },
+        { :name => :is_urgent,       :label => I18n.t(:is_urgent),
+          :default_value => false, :unchecked_value => 'false'
+        },
+        { :name => :is_structural,   :label => I18n.t(:is_structural),
+          :default_value => false, :unchecked_value => 'false'
+        },
+        { :name => :is_user_request, :label => I18n.t(:is_user_request),
+          :default_value => false, :unchecked_value => 'false'
+        },
 
-          { :name => :name, :label => I18n.t(:name), :width => 150 },
-          { :name => :module_names, :label => I18n.t(:module_names),:width => 180 },
-          { :name => :date_implemented, :xtype => :datecolumn, :label => I18n.t(:date_implemented), :width => 80,
-            :format => 'Y-m-d' },
-          { :name => :implemented_in_version, :label => I18n.t(:implemented_in_version), :width => 70,
-            :default_value => false, :unchecked_value => 'false'
-          },
+        { :name => :name, :label => I18n.t(:name), :width => 150 },
+        { :name => :module_names, :label => I18n.t(:module_names),:width => 180 },
+        { :name => :date_implemented, :xtype => :datecolumn, :label => I18n.t(:date_implemented), :width => 80,
+          :format => 'Y-m-d' },
+        { :name => :implemented_in_version, :label => I18n.t(:implemented_in_version), :width => 70,
+          :default_value => false, :unchecked_value => 'false'
+        },
 
-          { :name => :description, :label => I18n.t(:description), :width => 300 },
-          { :name => :notes, :label => I18n.t(:notes), :width => 300 }
+        { :name => :description, :label => I18n.t(:description), :width => 300 },
+        { :name => :notes, :label => I18n.t(:notes), :width => 300 }
       ]
     )
   end
@@ -90,5 +90,65 @@ class ProjectMilestonesGrid < EntityGrid
     }  
   JS
 
+  # ---------------------------------------------------------------------------
+
+
+  # Override default fields for forms. Must return an array understood by the
+  # items property of the forms.
+  #
+  def default_fields_for_forms
+    [
+      { :name => :created_on, :field_label => I18n.t(:created_on), :width => 80,   :read_only => true,
+        :format => 'Y-m-d' },
+      { :name => :updated_on, :field_label => I18n.t(:updated_on), :width => 120,  :read_only => true,
+        :format => 'Y-m-d' },
+
+      { :name => :user__name, :field_label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
+        :sorting_scope => :sort_project_milestone_by_user
+      },
+      { :name => :human_resource__get_full_name,  :field_label => I18n.t(:human_resource__get_full_name),
+        :scope => lambda { |rel|
+          rel.joins(:team_rows).still_available.where( ['team_id = ?', config[:current_team_id]] )
+        },
+        :default_value => config[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
+      },
+      { :name => :depends_on__name, :field_label => I18n.t(:depends_on__name), :width => 65,
+        :sorting_scope => :sort_project_milestone_by_dependency
+      },
+      { :name => :esteemed_days, :field_label => I18n.t(:esteemed_days), :width => 60,
+        :summary_type => :sum
+      },
+      { :name => :date_esteemed, :field_label => I18n.t(:date_esteemed),
+        :width => 75, :format => 'Y-m-d'
+      },
+      { :name => :projected_for_version, :field_label => I18n.t(:projected_for_version), :width => 80 },
+
+      { :name => :is_public, :field_label => I18n.t(:is_public),
+        :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :is_critical, :field_label => I18n.t(:is_critical),
+        :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :is_urgent, :field_label => I18n.t(:is_urgent),
+        :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :is_structural, :field_label => I18n.t(:is_structural),
+        :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :is_user_request, :field_label => I18n.t(:is_user_request),
+        :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :name, :field_label => I18n.t(:name), :width => 150 },
+      { :name => :module_names, :field_label => I18n.t(:module_names),:width => 180 },
+      { :name => :date_implemented, :field_label => I18n.t(:date_implemented),
+        :width => 80, :format => 'Y-m-d'
+      },
+      { :name => :implemented_in_version, :field_label => I18n.t(:implemented_in_version),
+        :width => 70, :default_value => false, :unchecked_value => 'false'
+      },
+      { :name => :description, :field_label => I18n.t(:description), :width => 300 },
+      { :name => :notes, :field_label => I18n.t(:notes), :width => 300 }
+    ]
+  end
   # ---------------------------------------------------------------------------
 end

@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.00.20130501
+# - vers. : 3.04.01.20130502
 #
 # == Params
 #
@@ -332,7 +332,7 @@ class ProjectRowsGrid < Netzke::Basepack::GridPanel
         },
         :sorting_scope => :sort_project_row_by_milestone
       },
-      { :name => :notes,          :field_label => I18n.t(:notes), :flex => 1 }
+      { :name => :notes,          :field_label => I18n.t(:notes) }
     ]
   end
   # ---------------------------------------------------------------------------
