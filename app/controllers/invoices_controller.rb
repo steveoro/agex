@@ -86,8 +86,8 @@ class InvoicesController < ApplicationController
   # - <tt>:no_header</tt> => when +true+, the header of the output will be skipped.
   #
   def report_detail
-#    logger.debug "\r\n!! ----- report_detail -----"
-#    logger.debug "report_detail: params #{params.inspect}"
+    logger.debug "\r\n!! ----- report_detail -----"
+    logger.debug "report_detail: params #{params.inspect}"
                                                     # Parse params:
     id_list = ActiveSupport::JSON.decode( params[:data] ) if params[:data]
     invoice_id = params[:invoice_id].to_i if params[:invoice_id]
@@ -110,8 +110,12 @@ class InvoicesController < ApplicationController
       end
     end
 # DEBUG
+#    logger.debug "invoices_controller.report_detail(): invoice_id: #{invoice_id.inspect}"
 #    logger.debug "invoices_controller.report_detail(): id list: #{id_list.inspect}"
-    return if records.nil?
+    if ( records.nil? || records == [] )
+      flash[:notice] = I18n.t( :invalid_data_or_invoice_with_no_rows, {:scope=>[:invoice_row]} )
+      redirect_to( invoices_url() )
+    end
 #    logger.debug "invoices_controller.report_detail(): records class: #{records.class}"
 #    logger.debug "invoices_controller.report_detail(): records found: #{records.size}"
 

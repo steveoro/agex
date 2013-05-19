@@ -4,7 +4,7 @@
 
 == InvoiceRowLayout
 
-- version:  3.03.11.20130415
+- version:  3.04.02.20130519
 - author:   Steve A.
 
 =end
@@ -75,7 +75,7 @@ class InvoiceRowLayout < PrawnPDFHelper
     self.build_invoice_body( pdf, options )
     self.build_invoice_footer( pdf, options )
 
-    self.finalize_standard_report( pdf )
+    self.finalize_standard_report( pdf, 2 )
     pdf.render()
   end 
   # ---------------------------------------------------------------------------
@@ -193,6 +193,9 @@ class InvoiceRowLayout < PrawnPDFHelper
                                     :company_phone_main, :company_phone_hq, :company_phone_fax, 
                                     :company_e_mail, :company_tax_code, :company_vat_registration )
       pdf.move_down( 10 )
+      additional_law_note = I18n.t( :additional_law_note, {:scope=>[:invoice_row]} )
+      company_info = [ company_info, additional_law_note ].compact.join("\n") unless additional_law_note.empty?
+
       pdf.text( company_info, { :align => :left, :size => 8, :inline_format => true } )
 
       if options[:is_internal_copy]
@@ -267,19 +270,6 @@ class InvoiceRowLayout < PrawnPDFHelper
     end
 
     pdf.stroke_horizontal_rule()
-  end
-  # ---------------------------------------------------------------------------
-
-
-  def self.finalize_standard_report( pdf )
-    page_num_text = "Pag. <page>/<total>"
-    numbering_options = {
-      :at => [pdf.bounds.right - 150, 2],
-      :width => 150,
-      :align => :right,
-      :size => 6
-    }
-    pdf.number_pages( page_num_text, numbering_options )
   end
   # ---------------------------------------------------------------------------
 

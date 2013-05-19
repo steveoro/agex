@@ -194,6 +194,8 @@ en:
     invoice_not_created: "Invoice not created"
     recipient_partner: "Recipient = Partner"
     recipient_committer: "Recipient = Committer"
+    additional_law_note: ""
+    invalid_data_or_invoice_with_no_rows: "An Invoice with invalid data or no rows was selected!"
 
 
   project_row:                                      # Scope used by Project manage & Project reporting

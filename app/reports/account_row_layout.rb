@@ -4,7 +4,7 @@
 
 == InvoiceRowLayout
 
-- version:  3.03.11.20130416
+- version:  3.04.02.20130519
 - author:   Steve A.
 
 =end
@@ -150,9 +150,9 @@ class AccountRowLayout < PrawnPDFHelper
       :column_widths  => fixed_column_widths
     }
 
-    pdf.bounding_box( [0, pdf.bounds.height - 40],
+    pdf.bounding_box( [0, pdf.bounds.height - 10],
                       :width => pdf.bounds.width,
-                      :height => pdf.bounds.height-80 ) do
+                      :height => pdf.bounds.height - 20 ) do
                                                     # -- Report title:
       pdf.text(
         "<u><b>#{options[:report_title]}</b></u>",
@@ -204,18 +204,5 @@ class AccountRowLayout < PrawnPDFHelper
       end
     end
   end 
-  # ---------------------------------------------------------------------------
-
-
-  def self.finalize_standard_report( pdf )
-    page_num_text = "Pag. <page>/<total>"
-    numbering_options = {
-      :at => [pdf.bounds.right - 150, 2],
-      :width => 150,
-      :align => :right,
-      :size => 6
-    }
-    pdf.number_pages( page_num_text, numbering_options )
-  end
   # ---------------------------------------------------------------------------
 end

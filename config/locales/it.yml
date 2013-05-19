@@ -194,6 +194,8 @@ it:
     invoice_not_created: "Fattura NON creata"
     recipient_partner: "Destinatario = Partner"
     recipient_committer: "Destinatario = Committente"
+    additional_law_note: "<i>Professionista di cui alla Legge #4 del 14/01/2013</i>"
+    invalid_data_or_invoice_with_no_rows: "E' stata selezionata una fattura con dati non validi o senza righe!"
 
 
   project_row:                                      # Scope used by Project manage & Project reporting

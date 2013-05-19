@@ -105,13 +105,13 @@ class ProjectsController < ApplicationController
     }
     @project_resource_rows = verbose_array.to_json.gsub(/\"/,"'")
 # DEBUG
-    logger.debug("\r\n\r\n!! ----- report_detail -----")
-    logger.debug("activity params #{params.inspect}")
-    logger.debug("----------------------------------------------------------")
-    logger.debug("@project_date_rows: #{@project_date_rows.inspect}")
-    logger.debug("----------------------------------------------------------")
-    logger.debug("@project_resource_rows: #{@project_resource_rows.inspect}")
-    logger.debug("----------------------------------------------------------\r\n")
+#    logger.debug("\r\n\r\n!! ----- report_detail -----")
+#    logger.debug("activity params #{params.inspect}")
+#    logger.debug("----------------------------------------------------------")
+#    logger.debug("@project_date_rows: #{@project_date_rows.inspect}")
+#    logger.debug("----------------------------------------------------------")
+#    logger.debug("@project_resource_rows: #{@project_resource_rows.inspect}")
+#    logger.debug("----------------------------------------------------------\r\n")
   end
   # ---------------------------------------------------------------------------
   # ---------------------------------------------------------------------------
@@ -238,6 +238,7 @@ class ProjectsController < ApplicationController
             :data => report_data_hash
         )
         logger.info( "[I!]-- Created documatic Project report '#{filename}'." )
+        FileUtils.chmod( 0755, filename )
         send_file( filename )                       # send the generated file to the outside world
         # -------------------------------------------
 

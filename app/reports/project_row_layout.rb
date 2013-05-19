@@ -4,7 +4,7 @@
 
 == ProjectRowLayout
 
-- version:  3.03.11.20130416
+- version:  3.04.02.20130519
 - author:   Steve A.
 
 =end
@@ -80,8 +80,8 @@ class ProjectRowLayout < PrawnPDFHelper
                                                   # Document margins (in PS pts):
       :left_margin    => 30,
       :right_margin   => 30,
-      :top_margin     => 30,
-      :bottom_margin  => 30,
+      :top_margin     => 40,
+      :bottom_margin  => 40,
                                                   # Metadata:
       :info => {
         :Title        => options[:report_title],
@@ -134,20 +134,6 @@ class ProjectRowLayout < PrawnPDFHelper
     pdf.repeat( :all ) do
       self.standard_page_footer( pdf, "#{options[:label_hash][:report_created_on]}: #{Format.a_short_datetime( DateTime.now )}" )
     end
-  end
-  # ---------------------------------------------------------------------------
-
-
-  def self.finalize_standard_report( pdf )
-    pdf.stroke_color( "000000" )
-    page_num_text = "Pag. <page>/<total>"
-    numbering_options = {
-      :at => [pdf.bounds.right - 150, 2],
-      :width => 150,
-      :align => :right,
-      :size => 6
-    }
-    pdf.number_pages( page_num_text, numbering_options )
   end
   # ---------------------------------------------------------------------------
 

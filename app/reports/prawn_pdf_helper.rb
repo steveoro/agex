@@ -5,7 +5,7 @@
 == PrawnPDFHelper
 Use this class as a parent to get access to the helper methods.
 
-- version:  3.03.11.20130416
+- version:  3.04.02.20130519
 - author:   Steve A.
 
 =end
@@ -17,14 +17,14 @@ class PrawnPDFHelper
   # Draws the standard page header, with some report info on the top left and on the center, the page numbering on the top right and a separating horizontal line.
   #
   def self.standard_page_header( pdf, topleft_info_text, topcenter_info_text )
-    pdf.move_cursor_to( pdf.bounds.top() )
+    pdf.move_cursor_to( pdf.margin_box.top() + 12 )
     pdf.text( self.italicize(topleft_info_text), :align => :left, :size => 6, :inline_format => true ) if topleft_info_text
-    pdf.move_cursor_to( pdf.bounds.top() )
+    pdf.move_cursor_to( pdf.margin_box.top() + 12 )
     pdf.text(
       self.italicize( topcenter_info_text ),
       { :align => :center, :size => 8, :inline_format => true } 
     ) if topcenter_info_text
-    pdf.move_cursor_to( pdf.bounds.top() - 12 )
+    pdf.move_cursor_to( pdf.margin_box.top() + 5 )
     pdf.stroke_horizontal_rule()
   end
   # ----------------------------------------------------------------------------
@@ -33,18 +33,34 @@ class PrawnPDFHelper
   # Draws the standard page footer, with some report info on the center of the line. 
   #
   def self.standard_page_footer( pdf, info_text )
-    pdf.move_cursor_to( pdf.bounds.bottom() + 7 )
+    pdf.move_cursor_to( pdf.margin_box.bottom() - 6 )
     pdf.stroke_horizontal_rule()
-    pdf.bounding_box( [50, 2],
+    pdf.bounding_box( [50, -8],
                       :width => pdf.bounds.width - 100, :height => 6 ) do
       pdf.text( italicize( info_text ),
         { :align => :center, :size => 6, :inline_format => true }
       )
     end
-    pdf.move_cursor_to( pdf.bounds.bottom() - 6 )
+    pdf.move_cursor_to( pdf.margin_box.bottom() - 14 )
     pdf.stroke_horizontal_rule()
   end
   # ----------------------------------------------------------------------------
+
+
+  # Closes the PDF and sets the page numbering options.
+  #
+  def self.finalize_standard_report( pdf, page_numbering_at_y = -8 )
+    pdf.stroke_color( "000000" )
+    page_num_text = "Pag. <page>/<total>"
+    numbering_options = {
+      :at => [pdf.bounds.right - 150, page_numbering_at_y],
+      :width => 150,
+      :align => :right,
+      :size => 6
+    }
+    pdf.number_pages( page_num_text, numbering_options )
+  end
+  # ---------------------------------------------------------------------------
 
 
   require 'ostruct'
@@ -437,9 +453,10 @@ class PrawnPDFHelper
          formatting_block_to_use.call()
       end
     else
-      pdf.span( opts.bounding_box_width, :position => :center ) do
+      # [20130519, Steve]: table auto-size/auto-center does it better than span; removing it:
+#      pdf.span( opts.bounding_box_width, :position => :center ) do
         formatting_block_to_use.call()
-      end
+#      end
     end
   end
   # -------------------------------------------------------------------------
