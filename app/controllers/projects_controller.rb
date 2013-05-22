@@ -3,6 +3,7 @@
 class ProjectsController < ApplicationController
   require 'common/format'
   require 'ruport'
+  require 'fileutils'                               # Used to process filenames
   require 'project_row_layout'
   require 'documatic'
 
@@ -238,7 +239,7 @@ class ProjectsController < ApplicationController
             :data => report_data_hash
         )
         logger.info( "[I!]-- Created documatic Project report '#{filename}'." )
-        FileUtils.chmod( 0755, filename )
+        FileUtils.chmod( 0644, filename )
         send_file( filename )                       # send the generated file to the outside world
         # -------------------------------------------
 

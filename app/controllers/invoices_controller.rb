@@ -7,7 +7,6 @@ class InvoicesController < ApplicationController
   require 'invoice_row_layout'
   require 'documatic'
 
-
   # Require authorization before invoking any of this controller's actions:
   before_filter :authorize
 
@@ -193,6 +192,7 @@ class InvoicesController < ApplicationController
         )
 
         logger.info( "[I!]-- Created documatic Invoice report '#{filename}'." )
+        FileUtils.chmod( 0644, filename )
         send_file( filename )                       # send the generated file to the outside world
         # -------------------------------------------
 

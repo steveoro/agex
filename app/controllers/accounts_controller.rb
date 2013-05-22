@@ -3,11 +3,9 @@
 class AccountsController < ApplicationController
   require 'common/format'
   require 'ruport'
+  require 'fileutils'                               # Used to process filenames
   require 'account_row_layout'
   require 'documatic'
-
-  require 'fileutils'                               # Used for file upload management
-
 
   # Require authorization before invoking any of this controller's actions:
   before_filter :authorize
@@ -158,6 +156,7 @@ class AccountsController < ApplicationController
             :data => report_data_hash
         )
         logger.info( "[I!]-- Created documatic Account report '#{filename}'." )
+        FileUtils.chmod( 0644, filename )
         send_file( filename )                       # send the generated file to the outside world
         # -------------------------------------------
 
