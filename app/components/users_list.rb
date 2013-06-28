@@ -2,7 +2,7 @@
 # Specialized User list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 0.24.20120904 (AgeX5 version)
+# - vers. : 3.04.05.20130628 (AgeX5 version: users belong to firms)
 #
 class UsersList < EntityGrid
 
@@ -80,7 +80,11 @@ class UsersList < EntityGrid
             :disabled => Netzke::Core.current_user ? (! Netzke::Core.current_user.can_access( :users )) : true },
 
           { :name => :firm__get_full_name, :label => I18n.t(:user_firm), :width => 250,
-            :scope => :sort_firm_by_verbose_name, :sorting_scope => :sort_user_by_firm }
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda {|rel| rel.house_firms.order("name ASC")},
+            :sorting_scope => :sort_user_by_firm }
       ]
     )
   end

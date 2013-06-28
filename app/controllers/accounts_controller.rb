@@ -919,19 +919,19 @@ class AccountsController < ApplicationController
   def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
     date_from = date_to = nil                       # Adjust date_from / date_to:
     if ( date_account <= date_currency )
-      date_from = date_account
-      date_to   = date_currency
+      date_from = date_account - 7
+      date_to   = date_currency + 7
     else
-      date_to   = date_account
-      date_from = date_currency
+      date_from = date_currency - 7
+      date_to   = date_account + 7
     end
                                                     # Retrieve the existing tuples like [account_id, float_value, date_account, date_currency]:
     records = AccountRow.where(
       'account_id = :account_id AND entry_value = :entry_value AND (date_entry >= :date_from AND date_entry <= :date_to)',
       { :account_id => account_id,
         :entry_value => float_value,
-        :date_from => date_from,
-        :date_to => date_to
+        :date_from => "MONTH(#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})",
+        :date_to => date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)
       }
     )
                                                     # Return the first among the tuples found:    

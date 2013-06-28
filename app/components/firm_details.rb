@@ -2,7 +2,7 @@
 # Firm details FormPanel implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.12.20130417
+# - vers. : 3.04.05.20130628
 #
 class FirmDetails < Netzke::Basepack::FormPanel
 
@@ -43,7 +43,13 @@ class FirmDetails < Netzke::Basepack::FormPanel
             },
             { :name => :name, :field_label => I18n.t(:name), :width => 370, :field_style => 'font-size: 110%; font-weight: bold;' },
             { :name => :address, :field_label => I18n.t(:address), :width => 374 },
-            { :name => :le_city__get_full_name, :field_label => I18n.t(:le_city, {:scope=>[:activerecord, :models]}), :width => 370 },
+            { :name => :le_city__get_full_name, :field_label => I18n.t(:le_city, {:scope=>[:activerecord, :models]}),
+              # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+              # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+              # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+              :scope => lambda { |rel| rel.order("name ASC, area ASC") },
+              :width => 370
+            },
             { :name => :is_out_of_business, :field_label => I18n.t(:is_out_of_business),
               :default_value => false, :unchecked_value => 'false'
             },
@@ -76,7 +82,10 @@ class FirmDetails < Netzke::Basepack::FormPanel
 
             { :name => :notes, :field_label => I18n.t(:notes), :width => 374 },
             { :name => :le_currency__display_symbol, :field_label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 130,
-              :default_value => AppParameter.get_default_currency_id() },
+              :default_value => AppParameter.get_default_currency_id(),
+              # [20121121] See note above for the sorted combo boxes.
+              :scope => lambda { |rel| rel.order("display_symbol ASC") }
+            },
 
             { :name => :bank_name, :field_label => I18n.t(:bank_name), :width => 350 },
             { :name => :bank_abicab, :field_label => I18n.t(:bank_abicab) },
@@ -85,7 +94,10 @@ class FirmDetails < Netzke::Basepack::FormPanel
 
             { :name => :logo_image_big, :field_label => I18n.t(:logo_image_big), :width => 320 },
             { :name => :logo_image_short, :field_label => I18n.t(:logo_image_short), :width => 320 },
-            { :name => :le_invoice_payment_type__get_full_name, :field_label => I18n.t(:le_invoice_payment_type), :width => 350 }
+            { :name => :le_invoice_payment_type__get_full_name, :field_label => I18n.t(:le_invoice_payment_type),
+              # [20121121] See note above for the sorted combo boxes.
+              :scope => lambda { |rel| rel.order("name ASC") }, :width => 350
+            }
           ]
         }
       ]

@@ -2,7 +2,7 @@
 # Specialized Invoices rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 class InvoicesGrid < MacroEntityGrid
 
@@ -124,12 +124,17 @@ class InvoicesGrid < MacroEntityGrid
 #            :default_value => Netzke::Core.current_user.firm_id },
 
           { :name => :recipient_firm__get_full_name, :label => I18n.t(:recipient_firm__get_full_name),
-            :width => 100, :scope => :still_available, :sorting_scope => :sort_invoice_by_firm
+            :width => 100,
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda {|rel| rel.committers.still_available.order("name ASC")},
+            :sorting_scope => :sort_invoice_by_firm
           },
           { :name => :invoice_number, :label => I18n.t(:invoice_number), :width => 50,
             :xtype => 'numbercolumn', :align => 'right', :format => '0' },
           { :name => :date_invoice, :label => I18n.t(:date_invoice), :width => 80,
-            :default_value => DateTime.now },
+            :format => 'Y-m-d', :default_value => DateTime.now },
           { :name => :header_object, :label => I18n.t(:header_object), :width => 200 },
           { :name => :is_fully_payed, :label => I18n.t(:is_fully_payed),
             :default_value => false, :unchecked_value => 'false'
@@ -144,10 +149,15 @@ class InvoicesGrid < MacroEntityGrid
           { :name => :total_expenses, :label => I18n.t(:total_expenses), :width => 80,
             :xtype => 'numbercolumn', :align => 'right', :format => '0.00', :summary_type => :sum },
           { :name => :le_currency__display_symbol, :label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}),
-            :width => 40, :sorting_scope => :sort_invoice_by_currency,
+            :width => 40,
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("display_symbol ASC") },
+            :sorting_scope => :sort_invoice_by_currency,
             :default_value => Netzke::Core.current_user.get_default_currency_id_from_firm()
           },
           { :name => :le_invoice_payment_type__get_full_name, :label => I18n.t(:le_invoice_payment_type__get_full_name),
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("name ASC") },
             :sorting_scope => :sort_invoice_by_payment_type, :width => 150
           },
           { :name => :notes, :label => I18n.t(:notes), :width => 200 }

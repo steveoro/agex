@@ -2,7 +2,7 @@
 # Specialized Team rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 class TeamRowsGrid < Netzke::Basepack::GridPanel
 
@@ -59,7 +59,10 @@ class TeamRowsGrid < Netzke::Basepack::GridPanel
       :enable_pagination => false,
       :columns => [
           { :name => :human_resource__get_verbose_name,  :label => I18n.t(:human_resource),
-            :scope => lambda { |rel| rel.where(:is_no_more_available => false).order("name ASC") },
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda { |rel| rel.still_available.order("name ASC") },
             :flex => 1, :sorting_scope => :sort_team_row_by_resource
           },
           { :name => :get_is_no_more_available, :label => I18n.t(:is_no_more_available),

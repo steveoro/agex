@@ -2,7 +2,7 @@
 # Specialized Invoice rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 # == Params
 #
@@ -128,6 +128,10 @@ class InvoiceRowsGrid < Netzke::Basepack::GridPanel
 #            :format => 'Y-m-d' },
 
           { :name => :project__get_full_name, :label => I18n.t(:project__get_full_name),
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda { |rel| rel.order("name ASC") },
             :sorting_scope => :sort_invoice_row_by_project
           },
           { :name => :description,        :label => I18n.t(:description), :min_width => 200,
@@ -141,7 +145,10 @@ class InvoiceRowsGrid < Netzke::Basepack::GridPanel
           { :name => :unit_cost,          :label => I18n.t(:unit_cost), :width => 60,
             :xtype => 'numbercolumn', :align => 'right', :format => '0.00', :summary_type => :sum },
           { :name => :le_currency__display_symbol, :label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
-            :default_value => super[:default_currency_id], :sorting_scope => :sort_invoice_row_by_currency
+            :default_value => super[:default_currency_id],
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("display_symbol ASC") },
+            :sorting_scope => :sort_invoice_row_by_currency
           },
           { :name => :vat_tax,            :label => I18n.t(:vat_tax), :width => 50,
             :xtype => 'numbercolumn', :align => 'right', :format => '0.00',

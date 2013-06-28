@@ -2,7 +2,7 @@
 # Specialized Article list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.04.05.20130628
 #
 class ArticlesList < EntityGrid
 
@@ -25,6 +25,10 @@ class ArticlesList < EntityGrid
         { :name => :title, :label => I18n.t(:title) },
         { :name => :entry_text, :label => I18n.t(:entry_text), :flex => 1 },
         { :name => :le_user__name, :label => I18n.t(:user), :width => 70, :sorting_scope => :sort_article_by_user,
+          # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+          # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+          # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+          :scope => lambda { |rel| rel.order("name ASC") },
           :default_value => Netzke::Core.current_user.id },
         { :name => :is_sticky, :label => I18n.t(:is_sticky),
           :default_value => false, :unchecked_value => 'false'
@@ -62,6 +66,10 @@ class ArticlesList < EntityGrid
       { :name => :title, :field_label => I18n.t(:title) },
       { :name => :entry_text, :field_label => I18n.t(:entry_text), :flex => 1 },
       { :name => :le_user__name, :field_label => I18n.t(:user), :width => 70, :sorting_scope => :sort_article_by_user,
+        # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+        # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+        # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+        :scope => lambda { |rel| rel.order("name ASC") },
         :default_value => Netzke::Core.current_user.id },
       { :name => :is_sticky, :field_label => I18n.t(:is_sticky),
         :default_value => false, :unchecked_value => 'false'

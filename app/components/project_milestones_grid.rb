@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.01.20130502
+# - vers. : 3.04.05.20130628
 #
 # == Params
 #
@@ -36,15 +36,23 @@ class ProjectMilestonesGrid < EntityGrid
           :format => 'Y-m-d' },
 
         { :name => :user__name, :label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
+          # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+          # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+          # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+          :scope => lambda { |rel| rel.order("name ASC") },
           :sorting_scope => :sort_project_milestone_by_user
         },
         { :name => :human_resource__get_full_name,  :label => I18n.t(:human_resource__get_full_name),
+          # [20121121] See note above for the sorted combo boxes.
           :scope => lambda { |rel|
-            rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] )
+            rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] ).order("name ASC")
           },
           :default_value => super[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
         },
+        { :name => :name, :label => I18n.t(:name), :width => 150 },
         { :name => :depends_on__name, :label => I18n.t(:depends_on__name), :width => 65,
+          # [20121121] See note above for the sorted combo boxes.
+          :scope => lambda { |rel| rel.order("name ASC") },
           :sorting_scope => :sort_project_milestone_by_dependency
         },
         { :name => :esteemed_days, :label => I18n.t(:esteemed_days), :width => 60, :summary_type => :sum },
@@ -68,12 +76,11 @@ class ProjectMilestonesGrid < EntityGrid
           :default_value => false, :unchecked_value => 'false'
         },
 
-        { :name => :name, :label => I18n.t(:name), :width => 150 },
         { :name => :module_names, :label => I18n.t(:module_names),:width => 180 },
         { :name => :date_implemented, :xtype => :datecolumn, :label => I18n.t(:date_implemented), :width => 80,
           :format => 'Y-m-d' },
         { :name => :implemented_in_version, :label => I18n.t(:implemented_in_version), :width => 70,
-          :default_value => false, :unchecked_value => 'false'
+          :default_value => ''
         },
 
         { :name => :description, :label => I18n.t(:description), :width => 300 },
@@ -104,16 +111,21 @@ class ProjectMilestonesGrid < EntityGrid
         :format => 'Y-m-d' },
 
       { :name => :user__name, :field_label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
-        :sorting_scope => :sort_project_milestone_by_user
+        # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+        # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+        # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+        :scope => lambda { |rel| rel.order("name ASC") }
       },
       { :name => :human_resource__get_full_name,  :field_label => I18n.t(:human_resource__get_full_name),
+          # [20121121] See note above for the sorted combo boxes.
         :scope => lambda { |rel|
-          rel.joins(:team_rows).still_available.where( ['team_id = ?', config[:current_team_id]] )
+          rel.joins(:team_rows).still_available.where( ['team_id = ?', config[:current_team_id]] ).order("name ASC")
         },
-        :default_value => config[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
+        :default_value => config[:default_human_resource_id]
       },
       { :name => :depends_on__name, :field_label => I18n.t(:depends_on__name), :width => 65,
-        :sorting_scope => :sort_project_milestone_by_dependency
+        # [20121121] See note above for the sorted combo boxes.
+        :scope => lambda { |rel| rel.order("name ASC") }
       },
       { :name => :esteemed_days, :field_label => I18n.t(:esteemed_days), :width => 60,
         :summary_type => :sum
@@ -144,7 +156,7 @@ class ProjectMilestonesGrid < EntityGrid
         :width => 80, :format => 'Y-m-d'
       },
       { :name => :implemented_in_version, :field_label => I18n.t(:implemented_in_version),
-        :width => 70, :default_value => false, :unchecked_value => 'false'
+        :width => 70, :default_value => ''
       },
       { :name => :description, :field_label => I18n.t(:description), :width => 300 },
       { :name => :notes, :field_label => I18n.t(:notes), :width => 300 }

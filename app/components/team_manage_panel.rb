@@ -2,7 +2,7 @@
 # Team(s) management composite panel implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 class TeamManagePanel < Netzke::Basepack::BorderLayoutPanel
 
@@ -81,7 +81,10 @@ class TeamManagePanel < Netzke::Basepack::BorderLayoutPanel
           },
           { :name => :firm__get_full_name, :label => I18n.t(:owner_firm), :width => 200,
             # [Steve, 20120201] (scope definitions can be found inside the Firm model)
-            :scope => lambda {|rel| rel.team_owners.still_available},
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda {|rel| rel.team_owners.still_available.order("name ASC")},
             :default_value => Netzke::Core.current_user.firm_id,
             :sorting_scope => :sort_team_by_firm
           },

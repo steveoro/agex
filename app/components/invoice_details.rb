@@ -2,7 +2,7 @@
 # Specialized Invoice details form component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 class InvoiceDetails < Netzke::Basepack::FormPanel
 
@@ -51,13 +51,18 @@ class InvoiceDetails < Netzke::Basepack::FormPanel
                 },
                 { :xtype => :displayfield, :value => " / #{I18n.t(:date_invoice)}", :margin => '0 2 0 2' },
                 { :name => :date_invoice, :hide_label => true, :width => 190,
-                  :default_value => DateTime.now, :margin => '0 0 0 2'
+                  :format => 'Y-m-d', :default_value => DateTime.now, :margin => '0 0 0 2'
                 },
               ]
             },
             { :name => :description, :field_label => I18n.t(:description), :width => 750 },
             { :name => :recipient_firm__get_full_name, :field_label => I18n.t(:recipient_firm__get_full_name),
-              :width => 400, :scope => :still_available },
+              :width => 400,
+              # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+              # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+              # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+              :scope => lambda {|rel| rel.committers.still_available.order("name ASC")}
+            },
             { :name => :header_object, :field_label => I18n.t(:header_object), :width => 750,
               :xtype => :textareafield, :resizable => true },
             { :name => :is_fully_payed, :field_label => I18n.t(:is_fully_payed),
@@ -96,6 +101,8 @@ class InvoiceDetails < Netzke::Basepack::FormPanel
               ]
             },
             { :name => :le_invoice_payment_type__get_full_name, :field_label => I18n.t(:le_invoice_payment_type__get_full_name),
+              # [20121121] See note above for the sorted combo boxes.
+              :scope => lambda { |rel| rel.order("name ASC") },
               :width => 380 },
             {
               :xtype => :fieldcontainer, :field_label => I18n.t(:total_expenses),
@@ -105,8 +112,9 @@ class InvoiceDetails < Netzke::Basepack::FormPanel
                   :field_style => 'text-align: right;', :decimal_precision => 2, :decimal_separator => '.',
                   :width => 100 },
                 { :name => :le_currency__display_symbol, :hide_label => true, :width => 40, :margin => '0 0 0 2',
-# FIXME Serve equivalente Netzke::Core.current_user.get_default_currency_id_from_firm()
-                  :default_value => AppParameter.get_default_currency_id()
+                  # [20121121] See note above for the sorted combo boxes.
+                  :scope => lambda { |rel| rel.order("display_symbol ASC") },
+                  :default_value => Netzke::Core.current_user.get_default_currency_id_from_firm()
                 }
               ]
             },

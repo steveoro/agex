@@ -2,7 +2,7 @@
 # Specialized HumanResource list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.04.05.20130628
 #
 class HumanResourcesList < EntityGrid
 
@@ -20,8 +20,14 @@ class HumanResourcesList < EntityGrid
 
       :columns => [
     		{ :name => :contact__get_full_name, :label => I18n.t(:contact), :summary_type => :count,
+          # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+          # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+          # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+          :scope => lambda { |rel| rel.order("surname ASC, name ASC") },
     		  :sorting_scope => :sort_resource_by_contact },
     		{ :name => :le_resource_type__get_full_name, :label => I18n.t(:le_resource_type),
+          # [20121121] See note above for the sorted combo boxes.
+          :scope => lambda { |rel| rel.order("name ASC") },
     		  :sorting_scope => :sort_resource_by_type },
     		{ :name => :name, :label => I18n.t(:name) },
     		{ :name => :description, :label => I18n.t(:description) },
@@ -29,7 +35,10 @@ class HumanResourcesList < EntityGrid
     		  :default_value => false, :unchecked_value => 'false'
     		},
     		{ :name => :le_currency__display_symbol, :label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
-    		  :default_value => AppParameter.get_default_currency_id(), :sorting_scope => :sort_resource_by_currency },
+    		  :default_value => AppParameter.get_default_currency_id(),
+          # [20121121] See note above for the sorted combo boxes.
+          :scope => lambda { |rel| rel.order("display_symbol ASC") },
+    		  :sorting_scope => :sort_resource_by_currency },
     
         { :name => :cost_std_hour, :field_label => I18n.t(:cost_std_hour, {:scope=>[:project_row]}),
           :width => 80, :xtype => 'numbercolumn', :align => 'right', :format => '0.00'
@@ -55,7 +64,8 @@ class HumanResourcesList < EntityGrid
         { :name => :percentage_of_invoice, :field_label => I18n.t(:percentage_of_invoice, {:scope=>[:project_row]}),
           :width => 80, :xtype => 'numbercolumn', :align => 'right', :format => '0.00'
         },
-    		{ :name => :date_start,  :label => I18n.t(:date_start), :width => 80, :default_value => DateTime.now },
+    		{ :name => :date_start,  :label => I18n.t(:date_start), :width => 80,
+    		  :format => 'Y-m-d', :default_value => DateTime.now },
     		{ :name => :notes,       :label => I18n.t(:notes), :width => 200 }
       ]
     )
@@ -84,16 +94,24 @@ class HumanResourcesList < EntityGrid
   def default_fields_for_forms
     [
 		{ :name => :contact__get_full_name, :field_label => I18n.t(:contact), :summary_type => :count,
-		  :sorting_scope => :sort_resource_by_contact },
+      # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+      # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+      # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+      :scope => lambda { |rel| rel.order("surname ASC, name ASC") }
+	  },
 		{ :name => :le_resource_type__get_full_name, :field_label => I18n.t(:le_resource_type),
-		  :sorting_scope => :sort_resource_by_type },
+      # [20121121] See note above for the sorted combo boxes.
+      :scope => lambda { |rel| rel.order("name ASC") }
+    },
 		{ :name => :name, :field_label => I18n.t(:name) },
 		{ :name => :description, :field_label => I18n.t(:description) },
 		{ :name => :is_no_more_available, :field_label => I18n.t(:is_no_more_available),
 		  :default_value => false, :unchecked_value => 'false'
 		},
 		{ :name => :le_currency__display_symbol, :field_label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
-		  :default_value => AppParameter.get_default_currency_id(), :sorting_scope => :sort_resource_by_currency
+		  :default_value => AppParameter.get_default_currency_id(),
+      # [20121121] See note above for the sorted combo boxes.
+      :scope => lambda { |rel| rel.order("display_symbol ASC") }
 		},
     { :name => :cost_std_hour, :field_label => I18n.t(:cost_std_hour, {:scope=>[:project_row]}),
       :xtype => :numberfield,
@@ -135,7 +153,8 @@ class HumanResourcesList < EntityGrid
       :field_style => 'text-align: right;', :decimal_precision => 2, :decimal_separator => '.',
       :step => 0.01, :width => 100
     },
-		{ :name => :date_start,  :field_label => I18n.t(:date_start), :width => 80, :default_value => DateTime.now },
+		{ :name => :date_start,  :field_label => I18n.t(:date_start), :width => 80,
+		  :format => 'Y-m-d', :default_value => DateTime.now },
 		{ :name => :notes,       :field_label => I18n.t(:notes), :width => 200 }
     ]
   end

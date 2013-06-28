@@ -2,7 +2,7 @@
 # Specialized Account rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.04.05.20130628
 #
 # == Params
 #
@@ -211,6 +211,10 @@ class AccountRowsGrid < Netzke::Basepack::GridPanel
 #            :format => 'Y-m-d' },
 
           { :name => :user__name, :label => I18n.t(:user), :width => 70, :default_value => Netzke::Core.current_user.id,
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda { |rel| rel.order("name ASC") },
             :sorting_scope => :sort_account_row_by_user
           },
           { :name => :date_entry, :label => I18n.t(:date_entry, {:scope=>[:account_row]}), :width => 80,
@@ -222,20 +226,32 @@ class AccountRowsGrid < Netzke::Basepack::GridPanel
             :xtype => 'numbercolumn', :align => 'right', :format => '0.00'
           },
           { :name => :le_currency__display_symbol,    :label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("display_symbol ASC") },
             :default_value => super[:default_currency_id], :sorting_scope => :sort_account_row_by_currency
           },
           { :name => :description, :label => I18n.t(:description), :width => 280 },
 
           { :name => :recipient_firm__get_full_name, :label => I18n.t(:recipient_firm__get_full_name, {:scope=>[:account_row]}),
-            :scope => :still_available, :sorting_scope => :sort_account_row_by_firm
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.where(:is_out_of_business => false).order("name ASC, address ASC") },
+            # This will use predefined scope for filtering, but will not sort the list entries:
+            # :scope => :still_available, 
+            :sorting_scope => :sort_account_row_by_firm
           },
           { :name => :parent_le_account_row_type__get_full_name, :label => I18n.t(:parent_le_account_row_type__get_full_name, {:scope=>[:account_row]}),
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.where(:is_a_parent => true).order("name ASC") },
             :sorting_scope => :sort_account_row_by_parent_type
           },
           { :name => :le_account_row_type__get_full_name, :label => I18n.t(:le_account_row_type__get_full_name, {:scope=>[:account_row]}),
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.where(:is_a_parent => false).order("name ASC") },
             :sorting_scope => :sort_account_row_by_type
           },
           { :name => :le_account_payment_type__get_full_name, :label => I18n.t(:le_account_payment_type__get_full_name, {:scope=>[:account_row]}),
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("name ASC") },
             :sorting_scope => :sort_account_row_by_payment_type
           },
           { :name => :check_number, :label => I18n.t(:check_number, {:scope=>[:account_row]}) },

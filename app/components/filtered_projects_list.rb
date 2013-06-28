@@ -3,7 +3,7 @@
 # in a dedicated header which interacts directly with the scoping of the data grid.
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.04.05.20130628
 #
 class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
 
@@ -121,10 +121,15 @@ class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
           { :name => :codename,           :label => I18n.t(:codename) },
           { :name => :name,               :label => I18n.t(:name) },
           { :name => :project__codename,  :label => I18n.t(:project__codename),
+            # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,
+            # a lambda statement must be used. Using a pre-computed scope from the Model class prevents Netzke
+            # (as of this version) to append the correct WHERE clause to the scope itself (with an inline lambda, instead, it works).
+            :scope => lambda { |rel| rel.order("codename ASC") },
             :sorting_scope => :sort_project_by_parent },
           { :name => :date_start,         :label => I18n.t(:date_start), :width => 80,
-            :default_value => DateTime.now },
-          { :name => :date_end,           :label => I18n.t(:date_end), :width => 80 },
+            :format => 'Y-m-d', :default_value => DateTime.now },
+          { :name => :date_end,           :label => I18n.t(:date_end),
+            :format => 'Y-m-d', :width => 80 },
 
           { :name => :description,        :label => I18n.t(:description), :width => 200 },
 
@@ -150,14 +155,16 @@ class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
           # [Steve, 20120212] Since the following is the first "firms" table used, it will be called
           # simply "firms" in the sorting scope by ActiveRecord dynamic querying methods:
           { :name => :partner_firm__get_full_name,    :label => I18n.t(:partner_firm__get_full_name),
-            :width => 100, :scope => lambda {|rel| rel.partners.still_available},
+            :width => 100,
+            :scope => lambda {|rel| rel.partners.still_available.order("name ASC")},
             :sorting_scope => :sort_project_by_firm },
 
           # [Steve, 20120212] The following "firms" table name inside the dynamic join will become composed
           # by the "commiter_firm" prefix by ActiveRecord, so the dedicated sorting scope is used:
           # (check out its definition inside the Project model class)
           { :name => :committer_firm__get_full_name,  :label => I18n.t(:committer_firm__get_full_name),
-            :width => 100, :scope => lambda {|rel| rel.committers.still_available},
+            :width => 100,
+            :scope => lambda {|rel| rel.committers.still_available.order("name ASC")},
             :sorting_scope => :sort_project_by_committer },
 
           { :name => :esteemed_price,     :label => I18n.t(:esteemed_price), :width => 80,
@@ -168,6 +175,8 @@ class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
           # sort also all the rows that have a null value (which would be filtered out by the join otherwise).
           { :name => :le_currency__display_symbol, :label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
             :default_value => Netzke::Core.current_user.get_default_currency_id_from_firm(),
+            # [20121121] See note above for the sorted combo boxes.
+            :scope => lambda { |rel| rel.order("display_symbol ASC") },
             :sorting_scope => :sort_project_by_currency },
 
           # [Steve, 20120212] (See note above)
@@ -177,7 +186,8 @@ class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
             :scope => lambda { |rel|
               rel.still_available.where(
                 ['(firm_id = ?) OR (firm_id = NULL)', Netzke::Core.current_user.firm_id]
-              )},
+              ).order("name ASC")
+            },
             :sorting_scope => :sort_project_by_team
           },
 
