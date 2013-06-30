@@ -597,6 +597,7 @@ class AccountsController < ApplicationController
       raise ArgumentError, "accounts_controller.add_new_import_row_for_data_structure_bper(): invalid 'array_of_column_values' parameter!", caller
     end
                                                     # Custom data conversions:
+    # TODO Discriminate between 8 column format (old) & 10 column format (new)
     float_value = 0.0
     date_account = nil
     date_currency = nil
@@ -673,21 +674,21 @@ class AccountsController < ApplicationController
   # Data-import (sub-) Phase 1.1
   #
   def detect_which_account_id( array_of_column_values )
-    if array_of_column_values[1] == '00001654466'
+    if ( !(array_of_column_values[1] =~ /1654466/).nil? )
       begin
         return Account.where( :name => 'comune' ).first.id
       rescue
         return nil
       end
 
-    elsif array_of_column_values[1] == '00000906683'
+    elsif ( !(array_of_column_values[1] =~ /906683/).nil? )
       begin
         return Account.where( :name => 'pagamenti' ).first.id
       rescue
         return nil
       end
 
-    elsif array_of_column_values[1] == '00000004745'
+    elsif ( !(array_of_column_values[1] =~ /4745/).nil? )
       begin
         return Account.where( :name => 'personale' ).first.id
       rescue
