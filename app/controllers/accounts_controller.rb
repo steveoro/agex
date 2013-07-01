@@ -918,23 +918,29 @@ class AccountsController < ApplicationController
   # Data-import (sub-) Phase 1.10
   #
   def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
+# DEBUG
+    logger.debug "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
     date_from = date_to = nil                       # Adjust date_from / date_to:
     if ( date_account <= date_currency )
-      date_from = date_account - 7
-      date_to   = date_currency + 7
+      date_from = date_account - 5
+      date_to   = date_currency + 5
     else
-      date_from = date_currency - 7
-      date_to   = date_account + 7
+      date_from = date_currency - 5
+      date_to   = date_account + 5
     end
                                                     # Retrieve the existing tuples like [account_id, float_value, date_account, date_currency]:
     records = AccountRow.where(
-      'account_id = :account_id AND entry_value = :entry_value AND (date_entry >= :date_from AND date_entry <= :date_to)',
+      '(account_id = :account_id) AND (entry_value = :entry_value) AND (date_entry >= :date_from AND date_entry <= :date_to)',
       { :account_id => account_id,
-        :entry_value => float_value,
+        :entry_value => float_value.to_f,
         :date_from => "MONTH(#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})",
         :date_to => date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)
       }
+      # Single line version example for ease of debug:
+      # account_id = 3 AND entry_value = -85.28 AND (date_entry >= "MONTH(2009-10-01)" AND date_entry <= '2009-11-11')
     )
+# DEBUG
+    logger.debug "accounts_controller.detect_which_conflicting_account_row_id: resulting records.size = #{records.size}.\r\n---------------------------------------------\r\n"
                                                     # Return the first among the tuples found:    
     ( records.size > 0 ? records.first.id : nil )
   end
