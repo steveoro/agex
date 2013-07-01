@@ -920,13 +920,18 @@ class AccountsController < ApplicationController
   def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
 # DEBUG
 #    logger.info "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
-    date_from = date_to = nil                       # Adjust date_from / date_to:
+    date_from = date_to = nil
+                                                    # Retrieve query range parameters from app_parameters' dedicated controller row:
+    ap = AppParameter.get_parameter_row_for( :accounts )
+    backward_range_in_days = (ap && ap.code_type_1.to_i > 0) ? ap.code_type_1.to_i : 10
+    forward_range_in_days  = (ap && ap.code_type_2.to_i > 0) ? ap.code_type_2.to_i : 4
+                                                    # Prepare date_from..date_to for the filtering:
     if ( date_account <= date_currency )
-      date_from = date_account - 5.day
-      date_to   = date_currency + 5.day
+      date_from = date_account - backward_range_in_days.day
+      date_to   = date_currency + forward_range_in_days.day
     else
-      date_from = date_currency - 5.day
-      date_to   = date_account + 5.day
+      date_from = date_currency - backward_range_in_days.day
+      date_to   = date_account + forward_range_in_days.day
     end
 # DEBUG
 #    logger.info "    updated ranges...: date_account=#{date_from}, date_currency=#{date_to})"
