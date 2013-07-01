@@ -919,28 +919,43 @@ class AccountsController < ApplicationController
   #
   def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
 # DEBUG
-    logger.debug "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
+#    logger.info "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
     date_from = date_to = nil                       # Adjust date_from / date_to:
     if ( date_account <= date_currency )
-      date_from = date_account - 5
-      date_to   = date_currency + 5
+      date_from = date_account - 5.day
+      date_to   = date_currency + 5.day
     else
-      date_from = date_currency - 5
-      date_to   = date_account + 5
+      date_from = date_currency - 5.day
+      date_to   = date_account + 5.day
     end
-                                                    # Retrieve the existing tuples like [account_id, float_value, date_account, date_currency]:
-    records = AccountRow.where(
-      '(account_id = :account_id) AND (entry_value = :entry_value) AND (date_entry >= :date_from AND date_entry <= :date_to)',
-      { :account_id => account_id,
-        :entry_value => float_value.to_f,
-        :date_from => "MONTH(#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})",
-        :date_to => date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)
-      }
-      # Single line version example for ease of debug:
-      # account_id = 3 AND entry_value = -85.28 AND (date_entry >= "MONTH(2009-10-01)" AND date_entry <= '2009-11-11')
-    )
 # DEBUG
-    logger.debug "accounts_controller.detect_which_conflicting_account_row_id: resulting records.size = #{records.size}.\r\n---------------------------------------------\r\n"
+#    logger.info "    updated ranges...: date_account=#{date_from}, date_currency=#{date_to})"
+#    logger.info "    reformatted......: date_account=#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)}, date_currency=#{date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})"
+    hash_query = {
+      account_id: account_id,
+      entry_value: float_value,
+      date_entry: date_from .. date_to
+    }
+#    logger.info "    hash_query.......: #{hash_query.inspect}"
+
+                                                    # Retrieve the existing tuples like [account_id, float_value, date_account, date_currency]:
+    records = AccountRow.where( hash_query )
+
+    # [Steve, 20130701] The Array/SQL version of the query is a lot less reliable and DB engine dependant
+    # Left here just as future (negative) reference:
+#   (
+#      '(account_id = :account_id) AND (entry_value = :entry_value) AND (date_entry >= :date_from AND date_entry <= :date_to)',
+#      { :account_id => account_id,
+#        :entry_value => float_value,
+#        :date_from => "MONTH('#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)}')",
+#        :date_to => date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)
+#      }
+#   )
+    # Single line version example for ease of debug:
+    # account_id = 3 AND entry_value = -85.28 AND (date_entry >= "MONTH(2009-10-01)" AND date_entry <= '2009-11-11')
+
+# DEBUG
+ #   logger.info "    resulting records.size = #{records.size}\r\n    --------------------------"
                                                     # Return the first among the tuples found:    
     ( records.size > 0 ? records.first.id : nil )
   end
