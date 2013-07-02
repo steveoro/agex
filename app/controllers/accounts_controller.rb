@@ -602,10 +602,17 @@ class AccountsController < ApplicationController
     date_account = nil
     date_currency = nil
     begin                                           # Convert _from_ the text format used inside the data file:
-      float_value   = array_of_column_values[4].to_f
-      date_account  = DateTime.strptime( array_of_column_values[2], '%d/%m/%Y' )
-      date_currency = DateTime.strptime( array_of_column_values[3], '%d/%m/%Y' )
+      float_value   = array_of_column_values[4].to_s.gsub(/'|"/, '').to_f
+# DEBUG
+      logger.debug("\r\n--- accounts_controller.add_new_import_row_for_data_structure_bper( data_import_session_id=#{data_import_session_id}, float_value=#{array_of_column_values[4]}, date_account=#{array_of_column_values[2]}, date_currency=#{array_of_column_values[3]}):")
+      logger.debug("    Parsing '#{array_of_column_values[2]}'...")
+      date_account  = DateTime.strptime( array_of_column_values[2].to_s.gsub(/'|"/, ''), '%d/%m/%Y' )
+      logger.debug("    Parsing '#{array_of_column_values[3]}'...")
+      date_currency = DateTime.strptime( array_of_column_values[3].to_s.gsub(/'|"/, ''), '%d/%m/%Y' )
+      logger.debug("    (No errors so far)")
     rescue
+      logger.warn("\r\n---[W!] accounts_controller.add_new_import_row_for_data_structure_bper( data_import_session_id=#{data_import_session_id}, float_value=#{array_of_column_values[4]}, date_account=#{array_of_column_values[2]}, date_currency=#{array_of_column_values[3]}):")
+      logger.warn("        Exception intercepted during the parsing of one or more of the above parameters! Resulting values will be nil or zeros!\r\n")
     end
 
     # Phase 1.1) detect which account_id
@@ -613,7 +620,8 @@ class AccountsController < ApplicationController
 
     # Phase 1.2) forcibly set current_user as user_id, text_2 as notes
     user_id = current_user.id
-    notes = ( array_of_column_values.size > 7 ? array_of_column_values[7] : nil )
+    notes = ( array_of_column_values.size > 7 ? array_of_column_values[7].to_s.gsub(/'|"/, '') : nil )
+    notes.gsub!(/null/, '') unless notes.nil?
 
     # Phase 1.3) detect which le_currency_id
     le_currency_id = detect_which_currency_id( array_of_column_values )
@@ -637,18 +645,21 @@ class AccountsController < ApplicationController
     description = detect_which_description( array_of_column_values )
 
     # Phase 1.10) detect which conflicting_account_row_id, using as info/search key: mainly date_currency(I) || date_account(II) && float_value, + the above info
-    conflicting_account_row_id = detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
+    conflicting_account_row_id = detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency, array_of_column_values )
 
                                                     # Store the data row:
     AccountDataImportRow.create(
       :account_data_import_session_id => data_import_session_id,
                                                     # -- Original import data: --
-      :string_1 => array_of_column_values[1],       # Account number
+                                                    # Account number:
+      :string_1 => array_of_column_values[1].to_s.gsub(/'|"/, ''),
       :date_1   => date_account,                    # Entry Date
       :date_2   => date_currency,                   # Currency Date
       :float_1  => float_value,                     # Entry value
-      :string_2 => array_of_column_values[5],       # Currency symbol ('EUR'='euro', 'DOL'='dollar', ...)
-      :text_1   => array_of_column_values[6],       # Original/source text
+                                                    # Currency symbol ('EUR'='euro', 'DOL'='dollar', ...)
+      :string_2 => array_of_column_values[5].to_s.gsub(/'|"/, ''),
+                                                    # Original/source text
+      :text_1   => array_of_column_values[6].to_s.gsub(/'|"/, ''),
                                                     # Hand Notes: (may be null and thus not split from original source text)
       :text_2   => notes,
                                                     # -- Parsed import data: --
@@ -703,9 +714,9 @@ class AccountsController < ApplicationController
   # Data-import (sub-) Phase 1.3
   #
   def detect_which_currency_id( array_of_column_values )
-    if array_of_column_values[5] == 'EUR'
+    if ( !(array_of_column_values[5] =~ /EUR/i).nil? )
       return LeCurrency.where( :name => 'euro' ).first.id
-    elsif array_of_column_values[5] == 'USD'
+    elsif ( !(array_of_column_values[5] =~ /USD/i).nil? )
       return LeCurrency.where( :name => 'US Dol.' ).first.id
     else
       nil
@@ -722,28 +733,28 @@ class AccountsController < ApplicationController
     # prelievi del titolare
     case array_of_column_values[6]
                                                     # "imposte e tasse"
-    when /IMPOSTA|MODELLO UNICO|ADDEBITO RID CONSORZIO BONIFICA/
+    when /IMPOSTA|MODELLO UNICO|ADDEBITO RID CONSORZIO BONIFICA/i
       return LeAccountRowType.where( :name => 'imposte e tasse' ).first.id
                                                     # "costi"
-    when /DISPOSIZIONE A|ADDEBITO RID|TELECOM|IREN |ENEL SPA|PAGAMENTO|COMMISSIONI|COMPETENZE|CONAD|PAGOBANCOMAT/
+    when /DISPOSIZIONE A|ADDEBITO RID|TELECOM|IREN |ENEL SPA|PAGAMENTO|COMMISSIONI|COMPETENZE|CONAD|PAGOBANCOMAT/i
       return LeAccountRowType.where( :name => 'costi' ).first.id
-                                                    # "profitti"
-    when /BONIFICO/
-      return LeAccountRowType.where( :name => 'profitti' ).first.id
                                                     # "integrazione cassa"
-    when /VERSAMENTO|ASSEGNI/
+    when /VERSAMENTO|ASSEGNI|BONIFICO (O\.?\/?C\.?:?|DA C\.?\/?C\.?:?) (SESE|BARB|ALLO|STEF|4745|FASA)/i
       return LeAccountRowType.where( :name => 'integrazione cassa' ).first.id
+                                                    # "profitti"
+    when /BONIFICO/i
+      return LeAccountRowType.where( :name => 'profitti' ).first.id
                                                     # "investimenti"
-    when /FONDI SICAV|TITOLI SOTTOSCRIZ/
+    when /FONDI SICAV|TITOLI SOTTOSCRIZ/i
       return LeAccountRowType.where( :name => 'investimenti' ).first.id
                                                     # "interessi"
-    when /CEDOLE/
+    when /CEDOLE/i
       return LeAccountRowType.where( :name => 'interessi' ).first.id
                                                     # "disinvestimenti"
-    when /RIMB\.TITOLI/
+    when /RIMB\.TITOLI/i
       return LeAccountRowType.where( :name => 'disinvestimenti' ).first.id
                                                     # "prelievi del titolare"
-    when /PRELEVAMENTO|PRELIEVO/
+    when /PRELEVAMENTO|PRELIEVO/i
       return LeAccountRowType.where( :name => 'prelievi del titolare' ).first.id
       
     else
@@ -763,36 +774,36 @@ class AccountsController < ApplicationController
     # "riviste di settore", "sanitari", "servizi bancari", "servizi xDSL", "software vario",
     # "spese condominiali", "suppellettili", "telefono", "utenze servizi", "varie" 
     case array_of_column_values[6]
-    when /TELECOM ITALIA UTENZA/
+    when /TELECOM ITALIA UTENZA/i
       return LeAccountRowType.where( :name => 'telefono' ).first.id
-    when /PAGAMENTO UTENZE WIND - INFOSTRADA/
+    when /PAGAMENTO UTENZE WIND - INFOSTRADA/i
       return LeAccountRowType.where( :name => 'servizi xDSL' ).first.id
-    when /IREN |ENEL SPA|PAGAMENTO UTENZE/
+    when /IREN |ENEL SPA|PAGAMENTO UTENZE/i
       return LeAccountRowType.where( :name => 'utenze servizi' ).first.id
-    when /ADDEBITO RID CONSORZIO BONIFICA/
+    when /ADDEBITO RID CONSORZIO BONIFICA/i
       return LeAccountRowType.where( :name => 'varie' ).first.id
-    when /COMMISSIONI|COMPETENZE|IMPOSTA DI BOLLO/
+    when /COMMISSIONI|COMPETENZE|IMPOSTA DI BOLLO/i
       return LeAccountRowType.where( :name => 'servizi bancari' ).first.id
 
-    when /BONIFICO O\/C SESENA BARBARA/
+    when /BONIFICO (O\.?\/?C\.?:?|DA C\.?\/?C\.?:?) (SESE|BARB)/i
       return LeAccountRowType.where( :name => 'entrate Baby' ).first.id
-    when /VERSAMENTO|VERSAM\. ASSEGN|BONIFICO DA CC 4745/
+    when /VERSAMENTO|VERSAM\. ASSEGN|BONIFICO (O\.?\/?C\.?:?|DA C\.?\/?C\.?:?) (ALLO|STEF|4745|FASA)/i
       return LeAccountRowType.where( :name => 'entrate Steve' ).first.id
 
-    when /IMPOSTA DI BOLLO|COMPETENZE/
+    when /IMPOSTA DI BOLLO|COMPETENZE/i
       return LeAccountRowType.where( :name => 'servizi bancari' ).first.id
                                                     # "CONGUAGLIO IMPOSTA"
-    when /MODELLO UNICO|IMPOSTA/
+    when /MODELLO UNICO|IMPOSTA/i
       return LeAccountRowType.where( :name => 'varie' ).first.id
 
-    when /SUPERMERCATO|CONAD|IPERCOOP|IPERAFFI/
+    when /SUPERMERCATO|CONAD|IPERCOOP|IPERAFFI/i
       return LeAccountRowType.where( :name => 'alimentari' ).first.id
-    when /ARES S\.R\.L|COSEBIO DI COSETTA/
+    when /ARES S\.R\.L|COSEBIO DI COSETTA/i
       return LeAccountRowType.where( :name => 'alimentari / biologico' ).first.id
-    when /SHELL|AGIP/
+    when /SHELL|AGIP/i
       return LeAccountRowType.where( :name => 'benzina' ).first.id
 
-    when /COMPLESSO CONDOMINIALE NOVE/
+    when /COMPLESSO CONDOMINIALE NOVE/i
       return LeAccountRowType.where( :name => 'spese condominiali' ).first.id
 
     else
@@ -808,22 +819,22 @@ class AccountsController < ApplicationController
     # "contanti", "carta di credito", "bancomat", "assegno", "bonifico bancario", "addebito su c.c.",
     # "accredito su c.c."
     case array_of_column_values[6]                  # "bonifico bancario"
-    when /BONIFICO/
+    when /BONIFICO/i
       return LeAccountPaymentType.where( :name => 'bonifico bancario' ).first.id
                                                    # "addebito"
-    when /IMPOSTA|MODELLO UNICO|ADDEBITO RID|DISPOSIZIONE|PAGAMENTO UTENZE|COMMISSIONI|COMPETENZE|TELECOM|IREN |ENEL SPA/
+    when /IMPOSTA|MODELLO UNICO|ADDEBITO RID|DISPOSIZIONE|PAGAMENTO UTENZE|COMMISSIONI|COMPETENZE|TELECOM|IREN |ENEL SPA/i
       return LeAccountPaymentType.where( :name => 'addebito su c.c.' ).first.id
                                                     # "bancomat"
-    when /PAGOBANCOMAT/
+    when /PAGOBANCOMAT/i
       return LeAccountPaymentType.where( :name => 'bancomat' ).first.id
                                                     # "carta di credito"
-    when /CONAD|PAGOBANCOMAT|PAGAMENTO SU CIRCUITO INTERNAZIONALE|CARTA DI CREDITO/
+    when /CONAD|PAGOBANCOMAT|PAGAMENTO SU CIRCUITO INTERNAZIONALE|CARTA DI CREDITO/i
       return LeAccountPaymentType.where( :name => 'carta di credito' ).first.id
                                                     # "assegno"
-    when /ASSEGNO|VERSAM\. ASSEGN/
+    when /ASSEGNO|VERSAM\. ASSEGN/i
       return LeAccountPaymentType.where( :name => 'assegno' ).first.id
                                                     # "contanti"
-    when /VERSAMENTO/
+    when /VERSAMENTO/i
       return LeAccountPaymentType.where( :name => 'contanti' ).first.id
     else
       nil
@@ -843,13 +854,13 @@ class AccountsController < ApplicationController
   #
   def detect_which_recipient_firm_id( array_of_column_values )
     case array_of_column_values[6]                  # "bonifico bancario"
-    when /PEDRONI/
+    when /PEDRONI/i
       begin
         return Firm.where( :name => 'Marco Pedroni' ).first.id
       rescue
         return nil
       end
-    when /FASAR/
+    when /FASAR/i
       begin
         return Firm.where( :name => 'FASAR Software di Stefano Alloro' ).first.id
       rescue
@@ -865,48 +876,48 @@ class AccountsController < ApplicationController
   #
   def detect_which_description( array_of_column_values )
     case array_of_column_values[6]
-    when /TELECOM ITALIA UTENZA/
+    when /TELECOM ITALIA UTENZA/i
       return 'utenza Telecom Italia'
-    when /WIND|ALICE/
+    when /WIND|ALICE/i
       return 'utenza servizio ADSL'
-    when /GAS/
+    when /GAS/i
       return 'utenza servizio gas'
-    when /ACQUA|IDRICO/
+    when /ACQUA|IDRICO/i
       return 'utenza servizio idrico'
-    when /RIFIUTI/
+    when /RIFIUTI/i
       return 'utenza servizio rifiuti'
-    when /LUCE|ELETTRI|ENEL/
+    when /LUCE|ELETTRI|ENEL/i
       return 'utenza servizio elettrico'
-    when /CONSORZIO BONIFICA|BONIFICA EMILIA/
+    when /CONSORZIO BONIFICA|BONIFICA EMILIA/i
       return 'tassa consorzio di bonifica'
-    when /COMMISSIONI/
+    when /COMMISSIONI/i
       return 'commissioni bancarie'
-    when /COMPETENZE/
+    when /COMPETENZE/i
       return 'competenze bancarie'
-    when /IMPOSTA DI BOLLO/
+    when /IMPOSTA DI BOLLO/i
       return 'imposta di bollo'
-    when /MODELLO UNICO/
+    when /MODELLO UNICO/i
       return 'pagamento modello Unico'
 
-    when /BONIFICO O\/C SESENA BARBARA|BONIFICO DA CC 4745/
+    when /BONIFICO (O\.?\/?C\.?:?|DA C\.?\/?C\.?:?) (SESE|BARB|ALLO|STEF|4745|FASA)/i
       return 'bonifico per integrazione cassa'
-    when /VERSAMENTO|VERSAM. ASSEGN/
+    when /VERSAMENTO|VERSAM. ASSEGN/i
       return 'integrazione cassa'
 
-    when /CONADCARD|CONAD CARD/
+    when /CONADCARD|CONAD CARD/i
       return 'spese alimentari su Conad Card a fine mese'
-    when /IPERCOOP/
+    when /IPERCOOP/i
       return 'spese alimentari / varie c/o IperCoop'
-    when /IPERAFFI/
+    when /IPERAFFI/i
       return 'spese alimentari c/o IperAffi'
-    when /SUPERMERCATO|CONAD/
+    when /SUPERMERCATO|CONAD/i
       return 'spese alimentari / varie con Bancomat'
-    when /ARES S\.R\.L|COSEBIO DI COSETTA/
+    when /ARES S\.R\.L|COSEBIO DI COSETTA/i
       return 'spese alimentari c/o supermerc. biologico'
-    when /SHELL|AGIP/
+    when /SHELL|AGIP/i
       return 'benzina'
 
-    when /COMPLESSO CONDOMINIALE NOVE/
+    when /COMPLESSO CONDOMINIALE NOVE/i
       return 'rata spese condominiali'
 
     else
@@ -917,14 +928,20 @@ class AccountsController < ApplicationController
 
   # Data-import (sub-) Phase 1.10
   #
-  def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency )
+  def detect_which_conflicting_account_row_id( account_id, float_value, date_account, date_currency, array_of_column_values )
 # DEBUG
-#    logger.info "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
+    logger.debug "\r\n\r\n==> accounts_controller.detect_which_conflicting_account_row_id( account_id=#{account_id}, float_value=#{float_value}, date_account=#{date_account}, date_currency=#{date_currency})"
     date_from = date_to = nil
-                                                    # Retrieve query range parameters from app_parameters' dedicated controller row:
+                                                    # Retrieve default query range parameters from app_parameters' dedicated controller row:
     ap = AppParameter.get_parameter_row_for( :accounts )
     backward_range_in_days = (ap && ap.code_type_1.to_i > 0) ? ap.code_type_1.to_i : 10
     forward_range_in_days  = (ap && ap.code_type_2.to_i > 0) ? ap.code_type_2.to_i : 4
+                                                    # Adapt/correct search range for special row types:
+    if array_of_column_values[6] =~ /IREN |ENEL SPA|PAGAMENTO UTENZE/i
+      backward_range_in_days = backward_range_in_days * 3
+      forward_range_in_days  = forward_range_in_days * 3
+      logger.debug "    search range adapted: -#{backward_range_in_days} .. +#{forward_range_in_days} days from date entry."
+    end
                                                     # Prepare date_from..date_to for the filtering:
     if ( date_account <= date_currency )
       date_from = date_account - backward_range_in_days.day
@@ -934,14 +951,14 @@ class AccountsController < ApplicationController
       date_to   = date_account + forward_range_in_days.day
     end
 # DEBUG
-#    logger.info "    updated ranges...: date_account=#{date_from}, date_currency=#{date_to})"
-#    logger.info "    reformatted......: date_account=#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)}, date_currency=#{date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})"
+    logger.debug "    updated ranges...: date_account=#{date_from}, date_currency=#{date_to})"
+    logger.debug "    reformatted......: date_account=#{date_from.strftime(AGEX_FILTER_DATE_FORMAT_SQL)}, date_currency=#{date_to.strftime(AGEX_FILTER_DATE_FORMAT_SQL)})"
     hash_query = {
       account_id: account_id,
       entry_value: float_value,
       date_entry: date_from .. date_to
     }
-#    logger.info "    hash_query.......: #{hash_query.inspect}"
+    logger.debug "    hash_query.......: #{hash_query.inspect}"
 
                                                     # Retrieve the existing tuples like [account_id, float_value, date_account, date_currency]:
     records = AccountRow.where( hash_query )
@@ -960,7 +977,7 @@ class AccountsController < ApplicationController
     # account_id = 3 AND entry_value = -85.28 AND (date_entry >= "MONTH(2009-10-01)" AND date_entry <= '2009-11-11')
 
 # DEBUG
- #   logger.info "    resulting records.size = #{records.size}\r\n    --------------------------"
+    logger.debug "    resulting records.size = #{records.size}\r\n    --------------------------"
                                                     # Return the first among the tuples found:    
     ( records.size > 0 ? records.first.id : nil )
   end
