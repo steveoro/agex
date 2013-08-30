@@ -13,6 +13,9 @@ class ProjectsController < ApplicationController
 
   # Default action ("/projects")
   def index
+# DEBUG
+#    logger.debug( "\r\n\r\n---[ #{controller_name()}.index ] ---" )
+#    logger.debug( "Params: #{params.inspect()}" )
     ap = AppParameter.get_parameter_row_for( :projects )
     @max_view_height = ap.get_view_height()
                                                     # Having the parameters, apply the resolution and the radius backwards:
@@ -20,6 +23,10 @@ class ProjectsController < ApplicationController
                                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start  = ( Date.parse( start_date ) - ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end    = ( Date.parse( start_date ) + ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+# DEBUG
+#    logger.debug( "start_date: #{start_date.inspect()}" )
+#    logger.debug( "@filtering_date_start: #{@filtering_date_start.inspect()}" )
+#    logger.debug( "@filtering_date_end:   #{@filtering_date_end.inspect()}" )
     @context_title = I18n.t(:projects_list)
   end
 

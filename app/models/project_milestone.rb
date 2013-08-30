@@ -32,7 +32,7 @@ class ProjectMilestone < ActiveRecord::Base
   validates_length_of :implemented_in_version, :maximum => 40, :allow_nil => true
 
 
-  scope :not_yet_implemented, where(:implemented_in_version => nil)
+  scope :not_yet_implemented, where( ['(implemented_in_version IS NULL) OR (implemented_in_version = \'\')'])
 
   scope :sort_project_milestone_by_project,     lambda { |dir| order("projects.name #{dir.to_s}, project_milestones.name #{dir.to_s}") }
   scope :sort_project_milestone_by_user,        lambda { |dir| order("le_users.name #{dir.to_s}, project_milestones.name #{dir.to_s}") }

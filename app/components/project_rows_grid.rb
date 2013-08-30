@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.03.20130830
 #
 # == Params
 #

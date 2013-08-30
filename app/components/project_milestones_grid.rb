@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.03.20130830
 #
 # == Params
 #
@@ -47,12 +47,15 @@ class ProjectMilestonesGrid < EntityGrid
           :scope => lambda { |rel|
             rel.joins(:team_rows).still_available.where( ['team_id = ?', super[:current_team_id]] ).order("name ASC")
           },
-          :default_value => super[:default_human_resource_id], :sorting_scope => :sort_project_milestone_by_resource
+          :default_value => super[:default_human_resource_id],
+          :sorting_scope => :sort_project_milestone_by_resource
         },
         { :name => :name, :label => I18n.t(:name), :width => 150 },
         { :name => :depends_on__name, :label => I18n.t(:depends_on__name), :width => 65,
           # [20121121] See note above for the sorted combo boxes.
-          :scope => lambda { |rel| rel.order("name ASC") },
+          :scope => lambda { |rel|
+            rel.where( ['project_id = ?', super[:project_id]] ).order("name ASC")
+          },
           :sorting_scope => :sort_project_milestone_by_dependency
         },
         { :name => :esteemed_days, :label => I18n.t(:esteemed_days), :width => 60, :summary_type => :sum },
