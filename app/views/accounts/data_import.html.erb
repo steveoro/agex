@@ -1,10 +1,4 @@
-<!-- Main menu section: -->
-<%= render( :partial => AGEX_APP + '/main_menu') %>
-
-<h1><%= "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}" %>: (1/3) <%="#{I18n.t(:select_create_session)}"%></h1>
-
 <% if @existing_import_sessions.size > 0 %>
-
 <script type="text/javascript" >
 	function showLog( containerId ) {
 		var cntLog = Ext.get( containerId ); 
@@ -66,10 +60,12 @@
 <% end %>
 
 
-<div align="center" style="padding-top: 5em; padding-bottom: 20em;">
+<h2><%=I18n.t(:select_file)%>:</h2>
+<div style="padding-top: 1em; padding-bottom: 20em;">
 	<%= form_tag( 'data_import_wizard', :multipart => true ) do -%>
-		<p><label><%=I18n.t(:select_file)%></label> : 
-		<%= file_field_tag( :datafile ) %> &nbsp;
-	  	<%= submit_tag( I18n.t(:upload) ) %>
+	<p>
+		<%= file_field_tag( :datafile ) %>&nbsp;
+  		<%= submit_tag( I18n.t(:upload) ) %>
+  	<p/>
 	<% end %>
 </div>

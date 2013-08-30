@@ -8,6 +8,7 @@ class ContactsController < ApplicationController
   def index
     ap = AppParameter.get_parameter_row_for( :contacts )
     @max_view_height = ap.get_view_height()
+    @context_title = I18n.t(:contacts_list)
   end
   # ---------------------------------------------------------------------------
 

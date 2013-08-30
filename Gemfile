@@ -57,6 +57,9 @@ gem 'prawn'
 #gem 'documatic', :path => '/home/myname/path_to_local_git_clone_of/documatic/'  # Use this local path only when debugging documatic
 gem 'documatic', :git => 'https://github.com/fasar-sw/documatic.git'
 gem 'generator'
+                                                    # [Steve, 20130801] Navigation gems for rendering menus & breadcrumbs:
+gem "simple-navigation"
+gem 'simple-navigation-bootstrap'
 
 # To use uploads:
 gem 'carrierwave'

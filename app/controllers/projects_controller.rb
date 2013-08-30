@@ -20,6 +20,7 @@ class ProjectsController < ApplicationController
                                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start  = ( Date.parse( start_date ) - ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end    = ( Date.parse( start_date ) + ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+    @context_title = I18n.t(:projects_list)
   end
 
 
@@ -43,6 +44,7 @@ class ProjectsController < ApplicationController
                                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start  = ( Date.parse( start_date ) - ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end    = ( Date.parse( start_date ) + ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+    @context_title = "#{I18n.t(:manage_project)} '#{@project_name}'"
   end
 
 
@@ -61,6 +63,7 @@ class ProjectsController < ApplicationController
                                                     # Compute the filtering parameters:
     ap = AppParameter.get_parameter_row_for( :projects )
     @max_view_height = ap.get_view_height()
+    @context_title = "#{I18n.t(:project_milestones_for)} \'#{@project_name}\'"
   end
 
 
@@ -113,6 +116,7 @@ class ProjectsController < ApplicationController
 #    logger.debug("----------------------------------------------------------")
 #    logger.debug("@project_resource_rows: #{@project_resource_rows.inspect}")
 #    logger.debug("----------------------------------------------------------\r\n")
+    @context_title = "#{I18n.t(:project_activity_for)} \'#{@project_name}\'"
   end
   # ---------------------------------------------------------------------------
   # ---------------------------------------------------------------------------

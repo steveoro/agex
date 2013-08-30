@@ -8,6 +8,7 @@ class HumanResourcesController < ApplicationController
   def index
     ap = AppParameter.get_parameter_row_for( :human_resources )
     @max_view_height = ap.get_view_height()
+    @context_title = I18n.t(:human_resources_list)
   end
   # ---------------------------------------------------------------------------
 

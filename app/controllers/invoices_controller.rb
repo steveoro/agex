@@ -20,6 +20,7 @@ class InvoicesController < ApplicationController
                                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start  = ( Date.parse( start_date ) - ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end    = ( Date.parse( start_date ) + ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+    @context_title = I18n.t(:invoices_list)
   end
 
 
@@ -32,6 +33,7 @@ class InvoicesController < ApplicationController
                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start = Date.parse( "#{start_year}-01-01" ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end   = Date.parse( "#{end_year}-01-01" ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+    @context_title = "#{I18n.t(:invoice_analysis_title, :scope =>[:agex_action])}"
   end
 
 
@@ -48,6 +50,7 @@ class InvoicesController < ApplicationController
 
     @invoice_name = invoice.name
     @default_currency_id_for_invoice_rows = invoice.get_default_currency_id()
+    @context_title = "#{I18n.t(:manage_invoice)} '#{@invoice_name}'"
   end
   # ---------------------------------------------------------------------------
   # ---------------------------------------------------------------------------

@@ -15,6 +15,7 @@ class AccountsController < ApplicationController
   def index
     ap = AppParameter.get_parameter_row_for( :accounts )
     @max_view_height = ap.get_view_height()
+    @context_title = I18n.t(:accounts_list)
   end
 
 
@@ -36,6 +37,7 @@ class AccountsController < ApplicationController
                                                     # Set the (default) parameters for the scope configuration: (actual used value will be stored inside component_session[])
     @filtering_date_start  = ( Date.parse( start_date ) - ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
     @filtering_date_end    = ( Date.parse( start_date ) + ap.get_filtering_radius ).strftime( AGEX_FILTER_DATE_FORMAT_SQL )
+    @context_title = "#{I18n.t(:manage_account)} '#{@account_name}'"
   end
   # ---------------------------------------------------------------------------
 
@@ -193,6 +195,7 @@ class AccountsController < ApplicationController
   #
   def data_import                                   # Retrieve current sessions for the current user and list them:
     @existing_import_sessions = AccountDataImportSession.where(:user_id => current_user.id)
+    @context_title = "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}: (1/3) #{I18n.t(:select_create_session)}"
   end
 
 
@@ -227,6 +230,7 @@ class AccountsController < ApplicationController
                                                     # Compute the filtering parameters:
     ap = AppParameter.get_parameter_row_for( :accounts )
     @max_view_height = ap.get_view_height()
+    @context_title = "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}: (2/3) #{I18n.t(:review_edit_data)}"
   end
 
 
@@ -327,6 +331,7 @@ class AccountsController < ApplicationController
     end
 
     @import_log += "==================================================\r\n"
+    @context_title = "#{I18n.t(:account_data_import_title, :scope =>[:agex_action])}: (3/3) #{I18n.t(:result_log)}"
   end
   # ---------------------------------------------------------------------------
   # ---------------------------------------------------------------------------
