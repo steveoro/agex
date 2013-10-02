@@ -103,20 +103,17 @@ class ProjectDetails < Netzke::Basepack::FormPanel
             },
             {
               :xtype => :fieldset, :title => I18n.t(:status),
-              :layout => :hbox, :width => 335, :defaults => {:margin => '0 10 2 0'},
+              :layout => :hbox, :width => 335,
+              :defaults => {
+                  :margin => '0 10 2 0', :hide_label => true,
+                  :unchecked_value => 'false', :default_value => false,
+                  :field_style => 'min-height: 13px; padding-left: 13px;'
+              },
               :items => [
-                { :name => :has_gone_gold, :hide_label => true, :box_label => I18n.t(:has_gone_gold),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :is_closed,     :hide_label => true, :box_label => I18n.t(:is_closed),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :has_been_invoiced, :hide_label => true, :box_label => I18n.t(:has_been_invoiced),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :is_a_demo,     :hide_label => true, :box_label => I18n.t(:is_a_demo),
-                  :default_value => false, :unchecked_value => 'false'
-                }
+                { :name => :has_gone_gold, :box_label => I18n.t(:has_gone_gold) },
+                { :name => :is_closed,     :box_label => I18n.t(:is_closed) },
+                { :name => :has_been_invoiced, :box_label => I18n.t(:has_been_invoiced), },
+                { :name => :is_a_demo,     :box_label => I18n.t(:is_a_demo) }
               ]
             }
           ]

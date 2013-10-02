@@ -2,7 +2,7 @@
 # Specialized Firms list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.14.20130419
+# - vers. : 3.05.05.20131002
 #
 class FirmsList < Netzke::Basepack::GridPanel
 
@@ -35,6 +35,10 @@ class FirmsList < Netzke::Basepack::GridPanel
     # ASSERT: assuming current_user is always set for this grid component:
     super.merge(
       :persistence => true,
+      :enable_pagination => ( toggle_pagination = AppParameter.get_default_pagination_enable_for( :firms ) ),
+      # [Steve, 20120914] It seems that the LIMIT parameter used during column sort can't be toggled off even when pagination is false, so we put an arbitrary 10Tera row count limit per page to get all the rows: 
+      :rows_per_page => ( toggle_pagination ? AppParameter.get_default_pagination_rows_for( :firms ) : 1000000000000 ),
+
       :columns => [
         { :name => :get_verbose_name, :label => I18n.t(:name), :flex => 1, :read_only => true,
           :sorting_scope => :sort_firm_by_verbose_name, :summary_type => :count

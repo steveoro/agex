@@ -2,7 +2,7 @@
 # Specialized Project rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.05.03.20130830
+# - vers. : 3.05.05.20131002
 #
 # == Params
 #
@@ -139,19 +139,24 @@ class ProjectMilestonesGrid < EntityGrid
       { :name => :projected_for_version, :field_label => I18n.t(:projected_for_version), :width => 80 },
 
       { :name => :is_public, :field_label => I18n.t(:is_public),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       },
       { :name => :is_critical, :field_label => I18n.t(:is_critical),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       },
       { :name => :is_urgent, :field_label => I18n.t(:is_urgent),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       },
       { :name => :is_structural, :field_label => I18n.t(:is_structural),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       },
       { :name => :is_user_request, :field_label => I18n.t(:is_user_request),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       },
       { :name => :name, :field_label => I18n.t(:name), :width => 150 },
       { :name => :module_names, :field_label => I18n.t(:module_names),:width => 180 },

@@ -2,7 +2,7 @@
 # Specialized Team rows list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.05.20131002
 #
 class TeamRowsGrid < Netzke::Basepack::GridPanel
 
@@ -56,7 +56,10 @@ class TeamRowsGrid < Netzke::Basepack::GridPanel
   def configuration
     # ASSERT: assuming current_user is always set for this grid component:
     super.merge(
-      :enable_pagination => false,
+      :enable_pagination => ( toggle_pagination = AppParameter.get_default_pagination_enable_for( :teams ) ),
+      # [Steve, 20120914] It seems that the LIMIT parameter used during column sort can't be toggled off even when pagination is false, so we put an arbitrary 10Tera row count limit per page to get all the rows: 
+      :rows_per_page => ( toggle_pagination ? AppParameter.get_default_pagination_rows_for( :teams ) : 1000000000000 ),
+
       :columns => [
           { :name => :human_resource__get_verbose_name,  :label => I18n.t(:human_resource),
             # [20121121] For the combo-boxes to have a working query after the 4th char is entered in the edit widget,

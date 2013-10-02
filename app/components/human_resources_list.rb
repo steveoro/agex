@@ -2,7 +2,7 @@
 # Specialized HumanResource list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.05.20131002
 #
 class HumanResourcesList < EntityGrid
 
@@ -14,6 +14,9 @@ class HumanResourcesList < EntityGrid
     super.merge(
       :prevent_header => true,
       :persistence => true,
+      :enable_pagination => ( toggle_pagination = AppParameter.get_default_pagination_enable_for( :human_resources ) ),
+      # [Steve, 20120914] It seems that the LIMIT parameter used during column sort can't be toggled off even when pagination is false, so we put an arbitrary 10Tera row count limit per page to get all the rows: 
+      :rows_per_page => ( toggle_pagination ? AppParameter.get_default_pagination_rows_for( :human_resources ) : 1000000000000 ),
 
       :add_form_window_config => { :height => 600, :width => 400, :title => "#{I18n.t(:add_human_resource_row)}" },
       :edit_form_window_config => { :height => 600, :width => 400, :title => "#{I18n.t(:edit_human_resource_row)}" },
@@ -106,7 +109,8 @@ class HumanResourcesList < EntityGrid
 		{ :name => :name, :field_label => I18n.t(:name) },
 		{ :name => :description, :field_label => I18n.t(:description) },
 		{ :name => :is_no_more_available, :field_label => I18n.t(:is_no_more_available),
-		  :default_value => false, :unchecked_value => 'false'
+		  :default_value => false, :unchecked_value => 'false',
+      :field_style => 'min-height: 13px; padding-left: 13px;'
 		},
 		{ :name => :le_currency__display_symbol, :field_label => I18n.t(:le_currency, {:scope=>[:activerecord, :models]}), :width => 40,
 		  :default_value => AppParameter.get_default_currency_id(),

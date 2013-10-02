@@ -2,7 +2,7 @@
 # Firm details FormPanel implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.05.20131002
 #
 class FirmDetails < Netzke::Basepack::FormPanel
 
@@ -51,6 +51,7 @@ class FirmDetails < Netzke::Basepack::FormPanel
               :width => 370
             },
             { :name => :is_out_of_business, :field_label => I18n.t(:is_out_of_business),
+              :field_style => 'min-height: 13px; padding-left: 13px;',
               :default_value => false, :unchecked_value => 'false'
             },
 
@@ -63,20 +64,17 @@ class FirmDetails < Netzke::Basepack::FormPanel
 
             {
               :xtype => :fieldset, :title => I18n.t(:firm_type),
-              :layout => :hbox, :width => 374, :defaults => {:margin => '0 10 2 0'},
+              :layout => :hbox, :width => 360,
+              :defaults => {
+                :hide_label => true, :margin => '0 8 4 0',
+                :field_style => 'min-height: 13px; padding-left: 13px;',
+                :default_value => false, :unchecked_value => 'false'
+              },
               :items => [
-                { :name => :is_user,       :hide_label => true, :box_label => I18n.t(:is_user),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :is_committer,  :hide_label => true, :box_label => I18n.t(:is_committer),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :is_partner,    :hide_label => true, :box_label => I18n.t(:is_partner),
-                  :default_value => false, :unchecked_value => 'false'
-                },
-                { :name => :is_vendor,     :hide_label => true, :box_label => I18n.t(:is_vendor),
-                  :default_value => false, :unchecked_value => 'false'
-                }
+                { :name => :is_user,       :box_label => I18n.t(:is_user) },
+                { :name => :is_committer,  :box_label => I18n.t(:is_committer) },
+                { :name => :is_partner,    :box_label => I18n.t(:is_partner) },
+                { :name => :is_vendor,     :box_label => I18n.t(:is_vendor) }
               ]
             },
 

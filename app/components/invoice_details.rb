@@ -2,7 +2,7 @@
 # Specialized Invoice details form component implementation
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.05.20131002
 #
 class InvoiceDetails < Netzke::Basepack::FormPanel
 
@@ -66,6 +66,7 @@ class InvoiceDetails < Netzke::Basepack::FormPanel
             { :name => :header_object, :field_label => I18n.t(:header_object), :width => 750,
               :xtype => :textareafield, :resizable => true },
             { :name => :is_fully_payed, :field_label => I18n.t(:is_fully_payed),
+              :field_style => 'min-height: 13px; padding-left: 13px;',
               :default_value => false, :unchecked_value => 'false'
             },
             {

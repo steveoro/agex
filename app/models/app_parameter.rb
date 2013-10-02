@@ -2,7 +2,7 @@
   
 = AppParameter
 
-  - version:  3.03.15.20130422
+  - version:  3.05.05.20131002
   - author:   Steve A.
 
   Common app_parameter base model for the Agex5 framework.
@@ -218,7 +218,20 @@ class AppParameter < ActiveRecord::Base
   end
 
 
-  # Retrieves default pagination for the specified controller [<underscore>+action+, if not "index"].
+  # Retrieves default pagination enable flag for the specified controller.
+  # Will return the value of the PAGINATION_ENABLE_FIELD column.
+  #
+  # == Parameters:
+  # - +ctrl_sym+: name of the controller as symbol
+  #
+  def self.get_default_pagination_enable_for( ctrl_sym )
+    ap = self.get_parameter_row_for( ctrl_sym )
+    raise "AppParameter.get_default_pagination_rows_for(#{ctrl_sym}): parameter row not found!" if ap.nil?
+    return( ap.send( PAGINATION_ENABLE_FIELD ) )
+  end
+
+
+  # Retrieves default pagination for the specified controller.
   # Will return a default value of 10 if the expected PAGINATION_ROWS_FIELD column is not set
   #
   # == Parameters:
@@ -231,7 +244,7 @@ class AppParameter < ActiveRecord::Base
   end
 
 
-  # Retrieves default view height for the specified controller [<underscore>+action+, if not "index"].
+  # Retrieves default view height for the specified controller.
   # Will return a default value of 500 if the expected VIEW_HEIGHT_FIELD column is not set
   #
   # == Parameters:

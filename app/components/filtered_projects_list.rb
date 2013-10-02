@@ -3,7 +3,7 @@
 # in a dedicated header which interacts directly with the scoping of the data grid.
 #
 # - author: Steve A.
-# - vers. : 3.04.05.20130628
+# - vers. : 3.05.05.20131002
 #
 class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
 
@@ -95,6 +95,9 @@ class FilteredProjectsList < Netzke::Basepack::BorderLayoutPanel
       :class_name => "MacroEntityGrid",
       :model => 'Project',
       :persistence => true,
+      :enable_pagination => ( toggle_pagination = AppParameter.get_default_pagination_enable_for( :projects ) ),
+      # [Steve, 20120914] It seems that the LIMIT parameter used during column sort can't be toggled off even when pagination is false, so we put an arbitrary 10Tera row count limit per page to get all the rows: 
+      :rows_per_page => ( toggle_pagination ? AppParameter.get_default_pagination_rows_for( :projects ) : 1000000000000 ),
 
       :add_form_config => { :class_name => "ProjectDetails" },
       :add_form_window_config => { :width => 930, :title => "#{I18n.t(:add_project)}" },

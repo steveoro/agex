@@ -2,7 +2,7 @@
 # Specialized LeAccountRowType list/grid component implementation
 #
 # - author: Steve A.
-# - vers. : 3.03.15.20130422
+# - vers. : 3.05.05.20131002
 #
 class LeAccountRowTypeList < EntityGrid
 
@@ -56,7 +56,8 @@ class LeAccountRowTypeList < EntityGrid
         :format => 'Y-m-d' },
       { :name => :name, :field_label => I18n.t(:name), :flex => 1 },
       { :name => :is_a_parent, :field_label => I18n.t(:is_a_parent), :qtip => I18n.t(:is_a_parent_tooltip),
-        :default_value => false, :unchecked_value => 'false'
+        :default_value => false, :unchecked_value => 'false',
+        :field_style => 'min-height: 13px; padding-left: 13px;'
       }
     ]
   end
