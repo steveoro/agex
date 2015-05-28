@@ -4,6 +4,14 @@ require 'ruport'
 require 'common/format'
 
 
+=begin
+
+= Invoice model
+
+  - AgeX framework vers.:  3.06.00
+  - author: Steve A.
+
+=end
 class Invoice < ActiveRecord::Base
 
   has_many :invoice_rows
@@ -12,7 +20,7 @@ class Invoice < ActiveRecord::Base
   belongs_to :le_currency
   belongs_to :le_invoice_payment_type
 
-  belongs_to :recipient_firm, :class_name  => "Firm", 
+  belongs_to :recipient_firm, :class_name  => "Firm",
                               :foreign_key => "recipient_firm_id"
                               # Note that if we get too specific with conditions here, ActiveRecords nils out the associations
                               # rows that do not respond to the constraints, as in the case of having a non-vendor id nulled specifing
@@ -56,6 +64,13 @@ class Invoice < ActiveRecord::Base
   scope :sort_invoice_by_firm,          lambda { |dir| order("firms.name #{dir.to_s}, invoices.name #{dir.to_s}") }
   scope :sort_project_by_recipient,     lambda { |dir| order("recipient_firms_invoices.name #{dir.to_s}, invoices.name #{dir.to_s}") }
   scope :sort_invoice_by_payment_type,  lambda { |dir| order("le_invoice_payment_types.name #{dir.to_s}, invoices.name #{dir.to_s}") }
+
+
+  # Default invoice type, with VAT, standard fiscal regime
+  TYPE_DEFAULT_ID = 0
+
+  # Default invoice type, with VAT, "minimum" fiscal regime
+  TYPE_MINIUM_ID = 1
 
 
   # ---------------------------------------------------------------------------
@@ -190,7 +205,7 @@ class Invoice < ActiveRecord::Base
   #
   def preset_default_values( params_hash = {} )
     unless self.firm || params_hash[:firm_id].blank?  # Set attribute only if not set
-      self.firm_id = params_hash[:firm_id].to_i 
+      self.firm_id = params_hash[:firm_id].to_i
     end
     self.invoice_number = self.get_next_invoice_number() unless self.invoice_number && self.invoice_number != ""
     self.date_invoice = Time.now unless self.date_invoice
