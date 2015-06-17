@@ -1,3 +1,8 @@
+if RUBY_VERSION =~ /1.9/
+  Encoding.default_external = Encoding::UTF_8
+  Encoding.default_internal = Encoding::UTF_8
+end
+
 source 'http://rubygems.org'
 
 gem 'rails', '= 3.2.19'
@@ -13,6 +18,8 @@ group :assets do
 end
 
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
+gem 'jquery_datepicker'
 
 # gem 'execjs'                                        # This requires a local (package) install of node.js
 # gem 'therubyracer', :platform => :ruby               # This seems to be the only one feasible on the EC2 micro instance
@@ -49,24 +56,29 @@ gem 'carrierwave'
 group :development do
   gem "better_errors", '~> 1.1.0'
   gem "binding_of_caller"
-#  gem 'guard', '~> 2.6'
-#  gem 'guard-rspec'
-#  gem 'guard-shell'
-#  gem 'rspec_api_blueprint', require: false
-#  gem "airbrussh", :require => false
+  gem 'guard', '~> 2.6'
+  gem 'guard-rspec'
+  gem 'guard-shell'
 
   # Although Capistrano + seed_dump are strictly development-related gems,
   # including them into the test environment also allows Semaphore CI to
   # perform automated deployment from a test build without changing the current
   # Rails environment.
-  gem 'capistrano',  '~> 2.15'                       # Deploy with Capistrano
-#  gem 'capistrano',  '~> 3.4'                       # Deploy with Capistrano
-#  gem 'capistrano-rvm'
-#  gem 'capistrano-bundler' #, '~> 1.1.2'
-#  gem 'capistrano-rails' #, '~> 1.1'
-#  gem 'capistrano-passenger'
+  gem 'capistrano',  '~> 3.4'                       # Deploy with Capistrano
+#  gem 'capistrano',  '~> 2.15'                       # Deploy with Capistrano
+  gem 'capistrano-rvm'
+  gem 'capistrano-bundler' #, '~> 1.1.2'
+  gem 'capistrano-rails' #, '~> 1.1'
+  gem 'capistrano-passenger'
 end
 
+
+group :development, :test do
+  gem "rspec", '~> 3'
+  gem "rspec-rails", '~> 3'
+  gem "factory_girl_rails"
+  gem 'ffaker', '~> 2'                              # Adds dummy names & fixture generator
+end
 
 # To use debugger
 #gem 'ruby-debug'

@@ -1,0 +1,3 @@
+@echo off
+set CODECLIMATE_REPO_TOKEN=50c4c89a7360f5f632828cb57a95ff3945064961e57a711fc9eedbd64376d971
+bundle exec guard

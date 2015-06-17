@@ -22,7 +22,7 @@ class PrawnPDFHelper
     pdf.move_cursor_to( pdf.margin_box.top() + 12 )
     pdf.text(
       self.italicize( topcenter_info_text ),
-      { :align => :center, :size => 8, :inline_format => true } 
+      { :align => :center, :size => 8, :inline_format => true }
     ) if topcenter_info_text
     pdf.move_cursor_to( pdf.margin_box.top() + 5 )
     pdf.stroke_horizontal_rule()
@@ -30,7 +30,7 @@ class PrawnPDFHelper
   # ----------------------------------------------------------------------------
 
 
-  # Draws the standard page footer, with some report info on the center of the line. 
+  # Draws the standard page footer, with some report info on the center of the line.
   #
   def self.standard_page_footer( pdf, info_text )
     pdf.move_cursor_to( pdf.margin_box.bottom() - 6 )
@@ -130,8 +130,8 @@ class PrawnPDFHelper
         pdf.pad( 4 ) do
           pdf.text(
             self.boldify( opts.heading ),
-            { :size => opts.size, :align  => :center, :inline_format => true } 
-          ) 
+            { :size => opts.size, :align  => :center, :inline_format => true }
+          )
         end
       else
         pdf.move_down( 4 )
@@ -157,7 +157,7 @@ class PrawnPDFHelper
   #---------------------------------------------------------------------------
   #++
 
-  # Adds a title text at the current y position, surrounded by a rounded rectangle 
+  # Adds a title text at the current y position, surrounded by a rounded rectangle
   # and supporting the same formatting options as #rounded_dual_text_box().
   #
   # The text supports inline formatting (see Prawn::Document::Text for info).
@@ -177,7 +177,7 @@ class PrawnPDFHelper
   #  }
   # </pre>
   #
-  def self.add_title( pdf, title_text, align = :center )  
+  def self.add_title( pdf, title_text, align = :center )
     self.rounded_dual_text_box( pdf, title_text ) do |o|
       o.size          = 10
       o.width         ||= pdf.width_of( title_text )
@@ -242,7 +242,7 @@ class PrawnPDFHelper
   #
   # == Sample usage of the option block:
   # <pre>
-  #     add_header_row( pdf, boldify(label), any_value ) { |o| 
+  #     add_header_row( pdf, boldify(label), any_value ) { |o|
   #         o.label_font_size = 10
   #         o.label_width     = 80
   #         o.label_color     = "000000"
@@ -281,7 +281,8 @@ class PrawnPDFHelper
     pdf.move_cursor_to( opts.y )
     pdf.fill_color( opts.value_color )
                                                     # Draw the value: (Use a font with a complete charset - WARNING: DejaVuSans is a "vanilla-plain" font family, which excludes additional formatting attributes like bold or italic...)
-    pdf.font( "#{Prawn::BASEDIR}/data/fonts/DejaVuSans.ttf" ) do
+    pdf.font( "Helvetica" ) do
+#    pdf.font( "#{Prawn::BASEDIR}/data/fonts/DejaVuSans.ttf" ) do
       if ( value.instance_of?(TrueClass) || value.instance_of?(FalseClass) ||
            value == 'true' || value == 'false' )
         value = ( value.instance_of?(TrueClass) || value == 'true' )
@@ -395,7 +396,7 @@ class PrawnPDFHelper
     ruport_table.rename_columns { |col_name|        # For each column, collect its prefixed width and change its name:
       fixed_column_widths << width_hash[ col_name.to_sym ]
       label_hash[col_name.to_sym] ? label_hash[col_name.to_sym] : col_name.to_s
-    } 
+    }
 
     table_array = [ ruport_table.column_names ]
     table_array += ruport_table.map { |row| row.to_a }
@@ -414,7 +415,7 @@ class PrawnPDFHelper
       if ( opts.title.kind_of?( String ) && opts.title.size > 0 )
         pdf.text(                                   # -- Table title:
           "<u><b>#{opts.title}</b></u>",
-          { :align => :center, :size => opts.title_font_size, :inline_format => true } 
+          { :align => :center, :size => opts.title_font_size, :inline_format => true }
         )
         pdf.move_down( 4 )
       end

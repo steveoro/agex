@@ -53,10 +53,10 @@ class ProjectRowLayout < PrawnPDFHelper
   #   the subtable portion of the table above, containing just the grandtotal computation.
   #   To be rendered together with grandtot_table.
   #
-  # - <tt>:entry_types_table</tt> (required) => 
+  # - <tt>:entry_types_table</tt> (required) =>
   #   a Ruport::Data::Table summarizing each possible code value of the field entry_type.
   #
-  # - <tt>:date_from</tt> / <tt>:date_to</tt> => 
+  # - <tt>:date_from</tt> / <tt>:date_to</tt> =>
   #   String dates representing the starting and ending filter range for this collection of rows.
   #   Both are not required (none, one or both can be supplied as options).
   #
@@ -78,8 +78,8 @@ class ProjectRowLayout < PrawnPDFHelper
       :page_size      => 'A4',
       :page_layout    => :portrait,
                                                   # Document margins (in PS pts):
-      :left_margin    => 30,
-      :right_margin   => 30,
+      :left_margin    => 25,
+      :right_margin   => 25,
       :top_margin     => 40,
       :bottom_margin  => 40,
                                                   # Metadata:
@@ -210,7 +210,11 @@ class ProjectRowLayout < PrawnPDFHelper
     end_y = pdf.cursor()
 
     pdf.move_cursor_to( start_y )
-    self.draw_table_with_columns_def( pdf, options[:entry_types_table], options[:label_hash] ) { |o|
+    self.draw_table_with_columns_def(
+        pdf,
+        options[:entry_types_table],
+        options[:label_hash]
+    ) do |o|
       o.bounding_box_start  = [pdf.bounds.left + half_width + half_width * 0.3, pdf.cursor]
       o.bounding_box_width  = half_width * 0.5
       o.table_width         = half_width * 0.5
@@ -223,17 +227,28 @@ class ProjectRowLayout < PrawnPDFHelper
       o.header_font_color   = "303030"
       o.row_color_even      = "f7f7f7"
       o.row_color_odd       = "e0e0e0"
-    }
+    end
     pdf.move_down( 12 )
 
-    options[:data_grouping].each { |n,g|
-      self.draw_table_with_columns_def( pdf, g + options[:subtot_tables_hash][n], options[:label_hash] ) { |o|
+    options[:data_grouping].each do |n,g|
+      self.draw_table_with_columns_def(
+          pdf,
+          g + options[:subtot_tables_hash][n],
+          options[:label_hash],                     # Label hash
+          {                                         # Width hash
+            date_entry: 45,
+            std_hours: 25,
+            ext_hours: 30,
+            km_tot: 35,
+            project_milestone: 50
+          }
+      ) do |o|
         o.bounding_box_width  = pdf.bounds.width
         o.table_width         = pdf.bounds.width
         o.title               = (n.nil? || n == '') ? '(?)': n   # (avoid missing titles)
         o.title_color         = "1030a0"
         o.title_font_size     = 10
-        o.font_size           = 8
+        o.font_size           = 7
         o.header_font_size    = 8
         o.header_color        = "eeffff"
         o.header_font_color   = "000080"
@@ -241,14 +256,15 @@ class ProjectRowLayout < PrawnPDFHelper
         o.row_color_odd       = "fff8dc"
         o.row_summary_length  = 4
         o.row_color_summary   = "ffffff"
-      }
+      end
+
       if ( pdf.cursor() < 120 )                     # If there's not enough space for the grand-total table, let's use another page:
         pdf.start_new_page()
         pdf.move_cursor_to( pdf.bounds.top - 40 )
       else
         pdf.move_down( 12 )
       end
-    }
+    end
 
     if ( pdf.cursor() < 100 )                       # If there's not enough space for the grand-total table, let's use another page:
       pdf.start_new_page()
@@ -260,7 +276,7 @@ class ProjectRowLayout < PrawnPDFHelper
       o.title               = options[:label_hash][:global_summary_title]
       o.title_color         = "1030a0"
       o.title_font_size     = 10
-      o.font_size           = 8
+      o.font_size           = 7
       o.header_font_size    = 8
       o.header_color        = "ffffff"
       o.header_font_color   = "000080"
@@ -275,10 +291,10 @@ class ProjectRowLayout < PrawnPDFHelper
     pdf.bounding_box( [pdf.bounds.left, pdf.cursor()], :width => half_width * 1.6 ) do
       pdf.text(
         self.boldify( "#{options[:label_hash][ :grouping_total_label ]}: #{options[:grouping_total]}" ),
-        { :align => :right, :size => 9, :inline_format => true } 
+        { :align => :right, :size => 9, :inline_format => true }
       )
     end
-  end 
+  end
   # -------------------------------------------------------------------------
 
 
@@ -292,8 +308,8 @@ class ProjectRowLayout < PrawnPDFHelper
     self.add_header_row( pdf, label, value.to_s, "0000a0" ) { |o|
       o.x               = x_pos
       o.y               = y_pos
-      o.label_font_size = 8
-      o.value_font_size = 8
+      o.label_font_size = 7
+      o.value_font_size = 7
     }
   end
   # -------------------------------------------------------------------------
