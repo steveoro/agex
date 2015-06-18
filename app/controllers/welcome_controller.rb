@@ -18,6 +18,7 @@ class WelcomeController < ApplicationController
   # ----------------------------------------------------------------------------
   #++
 
+
   def about
     @versioning = AppParameter.find_by_code( AppParameter::PARAM_VERSIONING_CODE )
     @default_firm_logo = AppParameter.get_default_firm_logo_big( @versioning.get_default_firm_id )
@@ -35,7 +36,7 @@ class WelcomeController < ApplicationController
   end
 
 
-  # Action used to allow the current user to edit its profile 
+  # Action used to allow the current user to edit its profile
   def edit_current_user
     @context_title = "#{I18n.t(:user)} '#{Netzke::Core.current_user.name}'"
   end

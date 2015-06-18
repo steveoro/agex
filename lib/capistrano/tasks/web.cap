@@ -54,9 +54,9 @@ namespace :web do
 
     # -- To use the following as a speed-up, mod_x_sendfile must be precompiled and added manually --
     # Enable mod_x_sendfile for downloading output files from rails app:
-#    RequestHeader Set X-Sendfile-Type X-Sendfile
-#    XSendFile on
-#    XSendFilePath /
+    RequestHeader Set X-Sendfile-Type X-Sendfile
+    XSendFile on
+    XSendFilePath /
 
     # The actual web app. public root folder:
     <Directory #{current_path}/public>
