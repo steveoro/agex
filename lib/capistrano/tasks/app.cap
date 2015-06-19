@@ -175,11 +175,14 @@ namespace :app do
         # (Inside the log dir, make sure to "chmod 0665" anything else).
         within shared_path do
           as( user: :root ) do
+            execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} log"
             execute :chmod, "777 log"
+            execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} tmp"
           end
         end
         within File.join(shared_path, "tmp") do
           as( user: :root ) do
+            execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} cache"
             execute :chmod, "777 cache"
           end
         end
