@@ -3,9 +3,9 @@
 # == Capistrano helper tasks ==
 #
 # - author: Steve A.
-# - vers. : 4.00.795
+# - vers. : 4.00.809
 #
-# This requires Capistrano v. >= 3.1
+# This requires Capistrano v. >= 3.4
 require "erb"
 
 
@@ -77,7 +77,9 @@ namespace :app do
           end
 
           within shared_path do
-            execute :mkdir, "-p config; mkdir -p config/environments"
+            as( user: :root ) do
+              execute :mkdir, "-p config; mkdir -p config/environments"
+            end
           end
           upload! '/tmp/production.rb', "#{shared_path}/config/environments/production.rb"
 
@@ -125,7 +127,9 @@ namespace :app do
         else
           warn "Directory #{lib_dir} NOT found or found empty on #{host}."
           info "Safely (re)creating directory before adding missing contents..."
-          execute :mkdir, "-p #{lib_dir}"
+          as( user: :root ) do
+            execute :mkdir, "-p #{lib_dir}"
+          end
           info "Uploading directory contents..."
           ssh_keys = fetch(:ssh_keys)
           use_pem_certificate = (ssh_keys.first =~ /\.pem$/)
@@ -133,9 +137,9 @@ namespace :app do
           run_locally do
             puts "      > Copying local extjs dir..."
             if use_pem_certificate
-              execute :scp, "-i #{ssh_keys.first} -Cpr public/extjs/* root@#{host}:#{lib_dir}"
+              execute :scp, "-i #{ssh_keys.first} -Cpr public/extjs/* #{fetch(:ssh_user)}@#{host}:#{lib_dir}"
             else
-              execute :scp, "-Cpr public/extjs/* root@#{host}:#{lib_dir}"
+              execute :scp, "-Cpr public/extjs/* #{fetch(:ssh_user)}@#{host}:#{lib_dir}"
             end
           end
         end
@@ -158,20 +162,26 @@ namespace :app do
         # mkdir -p is making sure that the directories are there for some SCM's that don't
         # save empty folders:
         within File.join(shared_path, "public") do
-          execute :mkdir, "-p output"
-          execute :chmod, "-R 0775 output"
-          execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} output"
-          execute :mkdir, "-p uploads"
-          execute :chmod, "-R 0775 uploads"
-          execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} uploads"
+          as( user: :root ) do
+            execute :mkdir, "-p output"
+            execute :chmod, "-R 0777 output"
+            execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} output"
+            execute :mkdir, "-p uploads"
+            execute :chmod, "-R 0777 uploads"
+            execute :chown, "-R #{fetch(:runner_user)}:#{fetch(:runner_group)} uploads"
+          end
         end
         # [Steve, 20140928] Allow custom log file to be written by nobody:nobody.
         # (Inside the log dir, make sure to "chmod 0665" anything else).
         within shared_path do
-          execute :chmod, "777 log"
+          as( user: :root ) do
+            execute :chmod, "777 log"
+          end
         end
         within File.join(shared_path, "tmp") do
-          execute :chmod, "777 cache"
+          as( user: :root ) do
+            execute :chmod, "777 cache"
+          end
         end
       end
     end
