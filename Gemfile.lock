@@ -280,6 +280,7 @@ DEPENDENCIES
   jquery_datepicker
   json
   mysql2
+  net-ssh (~> 2.9.2)
   netzke-basepack (~> 0.7.7)
   netzke-core (~> 0.7.7)
   prawn (~> 0.15)

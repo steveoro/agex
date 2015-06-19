@@ -66,11 +66,11 @@ group :development do
   # perform automated deployment from a test build without changing the current
   # Rails environment.
   gem 'capistrano',  '~> 3.4'                       # Deploy with Capistrano
-#  gem 'capistrano',  '~> 2.15'                       # Deploy with Capistrano
   gem 'capistrano-rvm'
   gem 'capistrano-bundler' #, '~> 1.1.2'
   gem 'capistrano-rails' #, '~> 1.1'
   gem 'capistrano-passenger'
+  gem 'net-ssh', '~> 2.9.2'
 end
 
 

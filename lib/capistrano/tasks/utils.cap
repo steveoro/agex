@@ -16,7 +16,10 @@ namespace :utils do
             error "#{fetch(:deploy_to)} is not writable on #{host}"
           end
         else
-          error "Directory #{fetch(:deploy_to)} does not exist on #{host}"
+          error "Directory #{fetch(:deploy_to)} does not exist on #{host}. Creating it..."
+          as( user: :root ) do
+            execute :mkdir, fetch(:deploy_to)
+          end
         end
       end
     end
