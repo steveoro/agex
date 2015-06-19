@@ -23,7 +23,7 @@ require 'framework/application_constants'
 =end
 
 # Script revision number
-SCRIPT_VERSION = '4.00.785'
+SCRIPT_VERSION = '4.00.785 (agex)'
 
 # Gives current application name
 APP_NAME = Rails.root.to_s.split( File::SEPARATOR ).reverse[0]
@@ -542,7 +542,7 @@ DESC
     Article.create({
       title: "Aggiornamento dell'applicazione",
 # TODO [FUTUREDEV] Localize this
-      body:  "L'applicazione e' stata aggiornata e portata alla versione " + app_version +
+      entry_text:  "L'applicazione e' stata aggiornata e portata alla versione " + app_version +
              (db_version.nil? ? "" : ". La struttura del DB e' stata portata alla versione " + db_version) + ".",
       user_id: 1 # default user id (must be not null)
     })
