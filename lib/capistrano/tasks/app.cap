@@ -201,4 +201,6 @@ before 'deploy:restart', 'remote:tmp_clear'
 # in the currently deployed app version.
 # Remember to clear the sessions in the production backup dump before deploying.
 #
-before 'deploy:restart', 'remote:db_rebuild_from_dump'
+# >>> THE FOLLOWING LINE CAN WORK ONLY IF THE BACKUP DB DUMP IS HOSTED ON THE REPO! <<<
+#
+# before 'deploy:restart', 'remote:db_rebuild_from_dump'
